@@ -14,8 +14,20 @@ const W=cv.width=Math.min(window.innerWidth,520);
 const H=cv.height=Math.min(window.innerHeight,860);
 const CX=W/2,CY=H/2;
 const WS=3200,HX=WS/2,HY=WS/2;
+
+/* âââ WEAPONS ââââââââââââââââââââââââââââââââââââââââââ */
 /* ═══ WEAPONS ══════════════════════════════════════ */
 const WEAPS=[
+  {name:'æ¨æ£', bAtk:8,  r:55,  col:'#885533',emoji:'ðªµ'},
+  {name:'é·å', bAtk:22, r:72,  col:'#aaccee',emoji:'âï¸'},
+  {name:'å¤§å', bAtk:45, r:88,  col:'#88aaff',emoji:'ð¡ï¸'},
+  {name:'é­æ³å',bAtk:85, r:100, col:'#aa44ff',emoji:'ð®'},
+  {name:'é¾é­å',bAtk:150,r:116, col:'#ff6600',emoji:'ð²'},
+  {name:'èç©ºå',bAtk:260,r:136, col:'#cc00ff',emoji:'â¨'},
+];
+const WCOST=[0,60,150,380,950,2200];
+
+/* âââ HOUSES ââââââââââââââââââââââââââââââââââââââââââââ */
   {name:'Stick', bAtk:8,  r:55,  col:'#885533',emoji:'🪵'},
   {name:'Katana', bAtk:22, r:72,  col:'#aaccee',emoji:'⚔️'},
   {name:'Greatsword', bAtk:45, r:88,  col:'#88aaff',emoji:'🗡️'},
@@ -26,6 +38,13 @@ const WEAPS=[
 
 /* ═══ HOUSES ═══════════════════════════════════════ */
 const HOUSES=[
+  {name:'èèå±',cost:0,   sz:50, bonus:'èµ·é»',              wallR:140},
+  {name:'å°æ¨å±',cost:80,  sz:64, bonus:'+30æå¤§è¡é',       wallR:185},
+  {name:'ç£é æ¿',cost:220, sz:82, bonus:'+0.5ç§»åéåº¦',      wallR:235},
+  {name:'å¤§å®é¢',cost:450, sz:100,bonus:'èªååè¡3HP/3s',    wallR:290},
+  {name:'åå ¡',  cost:900, sz:126,bonus:'æè½å+1æ',        wallR:365},
+  {name:'è¦å¡',  cost:1800,sz:150,bonus:'+é+å·å®³å¢å¹',      wallR:445},
+  {name:'é­æ³åå ¡',cost:3500,sz:180,bonus:'è§£éå¤åé­æ³ç«',  wallR:535},
   {name:'Hut',cost:0,   sz:50, bonus:'Start',              wallR:140},
   {name:'Cabin',cost:80,  sz:64, bonus:'+30 Max HP',       wallR:185},
   {name:'Brick House',cost:220, sz:82, bonus:'+0.5 Speed',      wallR:235},
@@ -35,8 +54,29 @@ const HOUSES=[
   {name:'Magic Castle',cost:3500,sz:180,bonus:'Unlock Magic Stations',  wallR:535},
 ];
 
+/* âââ BUILDINGS âââââââââââââââââââââââââââââââââââââââââ */
 /* ═══ BUILDINGS ════════════════════════════════════ */
 const BLDGS={
+  lumber:{name:'ä¼æ¨ç',wx:HX-260,wy:HY+120,lv:0,maxLv:5,costs:[80,140,260,420,700],phase:1,
+    bonuses:['è²Ã1ç æ¨¹','è²Ã3å¿«é','è²Ã6æç','è²Ã9éå','è²Ã12è¶é'],timer:0,prod:0,workers:[]},
+  meat:  {name:'èåå» ',wx:HX+260,wy:HY+120,lv:0,maxLv:4,costs:[120,200,350,550],phase:1,
+    bonuses:['èªåæ¶è','Ã2éæ¶è','å·åèÃ2','å¨èªåå·¥å» '],timer:0},
+  rail:  {name:'éµéç«',wx:HX,    wy:HY+260,lv:0,maxLv:4,costs:[200,320,500,800],phase:1,
+    bonuses:['+15%å®å¹','+30%å®å¹','+50%å®å¹','+80%å®å¹'],cart:{t:0,line:0}},
+  pizza: {name:'æ«è©åº',wx:HX-260,wy:HY-120,lv:0,maxLv:4,costs:[320,480,700,1100],phase:1,
+    bonuses:['èâð','èÃ0.5âð','è±ªè¯ðÃ3','ç¥ç´ðÃ5']  ,timer:0},
+  farm:  {name:'è¾²å ´',  wx:HX+260,wy:HY-120,lv:0,maxLv:4,costs:[180,300,520,850],phase:1,
+    bonuses:['ç¢ç©ç©','ç©ç©Ã2é','ç©ç©âéºµåx3','ç¥è¾²å ´Ã5'],timer:0},
+  market:{name:'å¸éå»£å ´',wx:HX+380,wy:HY-10,lv:0,maxLv:2,costs:[500,900],phase:2,
+    bonuses:['å®¢äºº+50%æ´é«å¹','å®¢æµÃ2çç']},
+  mine:  {name:'ç¤¦å',  wx:HX-380,wy:HY-10, lv:0,maxLv:2,costs:[600,1100],phase:2,
+    bonuses:['æ¯10ç§+3éå¹£','æ¯5ç§+8éå¹£'],mineTimer:0},
+  inn:   {name:'æé¤¨',  wx:HX,    wy:HY-270,lv:0,maxLv:3,costs:[450,700,1200],phase:2,
+    bonuses:['å®¢äººç­æ´ä¹','å®¢äººÃ2æ¶è²»','VIPå¥æ¿Ã3']  ,timer:0},
+  forge: {name:'éé å',wx:HX+380,wy:HY+120,lv:0,maxLv:3,costs:[400,650,1100],phase:3,
+    bonuses:['æ­¦å¨å·+20%','æ­¦å¨å·+50%','æ­¦å¨å·+100%']},
+  store: {name:'å¤§ååº«',wx:HX-380,wy:HY+120,lv:0,maxLv:2,costs:[400,800],phase:3,
+    bonuses:['å®¢äººä¸éÃ2','å®¢äººä¸éÃ4']},
   lumber:{name:'Lumber Camp',wx:HX-260,wy:HY+120,lv:0,maxLv:5,costs:[80,140,260,420,700],phase:1,
     bonuses:['Catx1 Chop','Catx3 Fast','Catx6 Efficient','Catx9 Double','Catx12 Ultra'],timer:0,prod:0,workers:[]},
   meat:  {name:'Meat Factory',wx:HX+260,wy:HY+120,lv:0,maxLv:4,costs:[120,200,350,550],phase:1,
@@ -57,8 +97,16 @@ const BLDGS={
     bonuses:['Weapon Dmg +20%','Weapon Dmg +50%','Weapon Dmg +100%']},
   store: {name:'Warehouse',wx:HX-380,wy:HY+120,lv:0,maxLv:2,costs:[400,800],phase:3,
     bonuses:['Max Guests x2','Max Guests x4']},
-  
-/* ═══ OUTPOST SPOTS ════════════════════════════════ */
+};
+const ANVIL={wx:HX-130,wy:HY+8};
+const TABLE={wx:HX+130,wy:HY+8};
+const RECRUIT={wx:HX,wy:HY+50}; // cat recruitment post
+const BARRACKS1={wx:HX-210,wy:HY+65}; // left barracks - sword
+const BARRACKS2={wx:HX+210,wy:HY+65}; // right barracks - shield
+
+const ANVIL={wx:HX-130,wy:HY+8};const TABLE={wx:HX+130,wy:HY+8};const RECRUIT={wx:HX,wy:HY+50}; 
+const BARRACKS1={wx:HX-210,wy:HY+65}; const BARRACKS2={wx:HX+210,wy:HY+65};
+/* âââ OUTPOST SPOTS (unlocked at hLv>=6) ââââââââââââââââ */
 const OUTPOST_SPOTS=[
   {wx:HX-920,wy:HY,    active:false,timer:0,type:'gold'},
   {wx:HX+920,wy:HY,    active:false,timer:0,type:'wood'},
@@ -68,11 +116,34 @@ const OUTPOST_SPOTS=[
   {wx:HX+700,wy:HY-700,active:false,timer:0,type:'meat'},
 ];
 
-/* ═══ PLAYER ═══════════════════════════════════════ */
-const P={wx:HX,wy:HY+210,hp:120,mxHp:120,spd:9.0,  wLv:1,wood:0,meat:0,pizza:0,grain:0,gold:0,  facing:0,animT:0,moving:false,inv:0,  autoHeal:false,healTimer:0,bonusBlade:0,wobble:0,  coinAnim:0,};
+/* âââ PLAYER ââââââââââââââââââââââââââââââââââââââââââââ */
+const P={wx:HX,wy:HY+210,hp:120,mxHp:120,spd:9.0,
+  wLv:1,wood:0,meat:0,pizza:0,grain:0,gold:0,
+  facing:0,animT:0,moving:false,inv:0,
+  autoHeal:false,healTimer:0,bonusBlade:0,wobble:0,
+  coinAnim:0,
+};
 
-/* ═══ STATE ════════════════════════════════════════ */
-let hLv=0;let tableWood=0,tableMeat=0,tablePizza=0,tableGrain=0;let wave=1,wTimer=0,bossTimer=0;let custTimer=2*60;let bladeAngle=0;let upgradeTimers={};let totalDeath=0;let bears=[],trees=[],customers=[],drops=[],parts=[],ftexts=[],workers=[],companions=[];let camX=HX-CX,camY=HY-CY;let keys={};let joy={on:false,id:-1,bx:0,by:0,dx:0,dy:0};let msg='',msgT=0;let frameN=0;let dtScale=1,lastTime=0;let gameState='title'; let killCount=0,playTime=0,tutorialTimer=0;let deathWave=1,deathKills=0,deathTime=0;let titleAnimT=0;let screenShake=0;
+/* âââ STATE âââââââââââââââââââââââââââââââââââââââââââââ */
+let hLv=0;
+let tableWood=0,tableMeat=0,tablePizza=0,tableGrain=0;
+let wave=1,wTimer=0,bossTimer=0;
+let custTimer=2*60;
+let bladeAngle=0;
+let upgradeTimers={};
+let totalDeath=0;
+let bears=[],trees=[],customers=[],drops=[],parts=[],ftexts=[],workers=[],companions=[];
+let camX=HX-CX,camY=HY-CY;
+let keys={};
+let joy={on:false,id:-1,bx:0,by:0,dx:0,dy:0};
+let msg='',msgT=0;
+let frameN=0;
+let dtScale=1,lastTime=0; // delta-time for frame-rate independent movement
+let gameState='title'; // 'title' | 'playing' | 'dead'
+let killCount=0,playTime=0,tutorialTimer=0;
+let deathWave=1,deathKills=0,deathTime=0;
+let titleAnimT=0;
+let screenShake=0; // B2: screen shake on hurt
 
 /* âââ WEB AUDIO ENGINE âââââââââââââââââââââââââââââââââââ */
 const SFX=(()=>{
@@ -1900,8 +1971,18 @@ function drawHUD(){
   if(joy.on){const jx=joy.bx,jy=joy.by;ct.fillStyle='rgba(255,255,255,.08)';ct.beginPath();ct.arc(jx,jy,60,0,Math.PI*2);ct.fill();ct.strokeStyle='rgba(255,255,255,.25)';ct.lineWidth=2.5;ct.beginPath();ct.arc(jx,jy,60,0,Math.PI*2);ct.stroke();ct.fillStyle='rgba(255,255,255,.32)';ct.beginPath();ct.arc(jx+Math.min(joy.dx,50),jy+Math.min(joy.dy,50),26,0,Math.PI*2);ct.fill();}
   if(msgT>0)msgT--;
 }
+
 /* âââ TITLE SCREEN âââââââââââââââââââââââââââââââââââââââ */
-  function drawTitle(){ titleAnimT+=0.02; const grd=ct.createRadialGradient(CX,CY*.6,0,CX,CY,H*.9); grd.addColorStop(0,'#0e1a3a');grd.addColorStop(1,'#020510'); ct.fillStyle=grd;ct.fillRect(0,0,W,H); for(let i=0;i<80;i++){ const sx=((i*137.5+23)%W),sy=((i*97.3+11)%(H*.55)); ct.fillStyle=`rgba(255,255,255,${.2+Math.sin(titleAnimT*1.5+i)*.25})`; ct.beginPath();ct.arc(sx,sy,(i%3===0?1.5:.8),0,Math.PI*2);ct.fill(); } 
+function drawTitle(){
+  titleAnimT+=0.02;
+  const grd=ct.createRadialGradient(CX,CY*.6,0,CX,CY,H*.9);
+  grd.addColorStop(0,'#0e1a3a');grd.addColorStop(1,'#020510');
+  ct.fillStyle=grd;ct.fillRect(0,0,W,H);
+  for(let i=0;i<80;i++){
+    const sx=((i*137.5+23)%W),sy=((i*97.3+11)%(H*.55));
+    ct.fillStyle=`rgba(255,255,255,${.2+Math.sin(titleAnimT*1.5+i)*.25})`;
+    ct.beginPath();ct.arc(sx,sy,(i%3===0?1.5:.8),0,Math.PI*2);ct.fill();
+  }
   // Moon
   ct.save();ct.shadowColor='#aaccff';ct.shadowBlur=30;
   ct.fillStyle='#ddeeff';ct.beginPath();ct.arc(W*.78,H*.18,38,0,Math.PI*2);ct.fill();
