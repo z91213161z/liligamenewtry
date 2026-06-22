@@ -1902,17 +1902,81 @@ function drawHUD(){
 }
 /* ═══ TITLE SCREEN ═════════════════════════════════ */
 function drawTitle(){  
-  // ... (前面是一堆畫背景、月亮跟魔女的程式碼) ...
-  // 這裡畫遊戲大標題
-  ct.fillText('Magic Merchant',CX,H*.22);
-  // 這裡畫遊戲副標題
-  ct.fillText('Survival Tycoon',CX,H*.3);
-  // ... (中間省略) ...
-  // 這裡畫開始按鈕的文字
-  ct.fillText('▶ Click to Start',CX,H*.76+34);
-  // 如果有找到存檔，會顯示這行提示
-  if(sv){ct.fillStyle='rgba(150,255,150,.7)';ct.font=`${Math.floor(W*.028)}px sans-serif`;ct.fillText('✔ Save found — Auto-loading',CX,H*.88);}
-  // 右下角的版本號
+  titleAnimT+=0.02;  
+  const grd=ct.createRadialGradient(CX,CY*.6,0,CX,CY,H*.9);  
+  grd.addColorStop(0,'#0e1a3a');grd.addColorStop(1,'#020510');  
+  ct.fillStyle=grd;ct.fillRect(0,0,W,H);  
+  for(let i=0;i<80;i++){    
+    const sx=((i*137.5+23)%W),sy=((i*97.3+11)%(H*.55));    
+    ct.fillStyle=`rgba(255,255,255,${.2+Math.sin(titleAnimT*1.5+i)*.25})`;    
+    ct.beginPath();ct.arc(sx,sy,(i%3===0?1.5:.8),0,Math.PI*2);ct.fill();  
+  }  
+  ct.save();ct.shadowColor='#aaccff';ct.shadowBlur=30;  
+  ct.fillStyle='#ddeeff';ct.beginPath();ct.arc(W*.78,H*.18,38,0,Math.PI*2);ct.fill();  
+  ct.fillStyle='#0e1a3a';ct.beginPath();ct.arc(W*.78+14,H*.18-8,32,0,Math.PI*2);ct.fill();  
+  ct.restore();  
+  ct.save();  
+  ct.shadowColor='#4488ff';ct.shadowBlur=30;  
+  ct.fillStyle='#ffffff';ct.font=`bold ${Math.floor(W*.13)}px sans-serif`;ct.textAlign='center';  
+  
+  // 🔽 1. 遊戲大標題 (你可以把 Magic Merchant 改成你要的)
+  ct.fillText('Magic Merchant',CX,H*.22);  
+  
+  ct.shadowBlur=0;  
+  ct.fillStyle='rgba(180,210,255,.85)';ct.font=`${Math.floor(W*.038)}px sans-serif`;  
+  
+  // 🔽 2. 遊戲副標題 (你可以把 Survival Tycoon 改成你要的)
+  ct.fillText('Survival Tycoon',CX,H*.3);  
+  
+  ct.restore();  
+  const wx=CX,wy=H*.58+Math.sin(titleAnimT*2.2)*7;  
+  ct.save();ct.translate(wx,wy);  
+  for(let s of[-1,1]){    
+    ct.fillStyle=`rgba(100,160,255,${.18+Math.sin(titleAnimT*4)*0.07})`;    
+    ct.beginPath();ct.ellipse(s*28,-10,22,14,s*0.4,0,Math.PI*2);ct.fill();    
+    ct.strokeStyle=`rgba(160,200,255,.35)`;ct.lineWidth=1;ct.beginPath();ct.ellipse(s*28,-10,22,14,s*0.4,0,Math.PI*2);ct.stroke();  
+  }  
+  ct.fillStyle='#3344aa';ct.fillRect(-11,-4,22,28);  
+  ct.fillStyle='#2233aa';ct.fillRect(-9,-2,8,26);  
+  ct.fillStyle='#111';ct.fillRect(-8,22,7,18);ct.fillRect(1,22,7,18);  
+  ct.fillStyle='#2244cc';ct.beginPath();ct.ellipse(-5,40,6,4,0,0,Math.PI*2);ct.fill();  
+  ct.beginPath();ct.ellipse(5,40,6,4,0,0,Math.PI*2);ct.fill();  
+  ct.fillStyle='#4466bb';ct.beginPath();ct.ellipse(0,-18,14,16,0,0,Math.PI*2);ct.fill();  
+  ct.fillStyle='#060618';ct.beginPath();ct.ellipse(0,-34,22,6,0,0,Math.PI*2);ct.fill();  
+  ct.fillStyle='#080820';ct.beginPath();ct.moveTo(-16,-34);ct.lineTo(-4,-70);ct.lineTo(4,-70);ct.lineTo(16,-34);ct.closePath();ct.fill();  
+  ct.fillStyle='#2244bb';ct.fillRect(-16,-40,32,6);  
+  for(let i=0;i<5;i++){const fa=(i/5)*Math.PI*2;ct.fillStyle=['#ff88bb','#ff66aa','#ffaacc','#ff99bb','#ee77aa'][i];ct.beginPath();ct.ellipse(-8+Math.cos(fa)*4,-46+Math.sin(fa)*3.5,2.5,2,fa,0,Math.PI*2);ct.fill();}  
+  ct.fillStyle='#ffcc44';ct.beginPath();ct.arc(-8,-46,2.2,0,Math.PI*2);ct.fill();  
+  ct.fillStyle='#f2eeff';ct.beginPath();ct.arc(0,-20,10,0,Math.PI*2);ct.fill();  
+  ct.fillStyle='#5577cc';ct.beginPath();ct.arc(0,-20,10,Math.PI*.6,Math.PI*1.9);ct.fill();  
+  ct.fillStyle='#ccaa00';ct.beginPath();ct.ellipse(-3,-20,2.2,2.8,0,0,Math.PI*2);ct.fill();  
+  ct.fillStyle='#ccaa00';ct.beginPath();ct.ellipse(3,-20,2.2,2.8,0,0,Math.PI*2);ct.fill();  
+  ct.fillStyle='#fff';ct.beginPath();ct.arc(-2,-21,1,0,Math.PI*2);ct.fill();  
+  ct.beginPath();ct.arc(4,-21,1,0,Math.PI*2);ct.fill();  
+  ct.strokeStyle='#1a1030';ct.lineWidth=3;ct.beginPath();ct.moveTo(14,-4);ct.lineTo(14,-48);ct.stroke();  
+  const orbPulse=.7+Math.sin(titleAnimT*5)*.3;  
+  ct.fillStyle=`rgba(80,130,255,${orbPulse})`;ct.beginPath();ct.arc(14,-52,8,0,Math.PI*2);ct.fill();  
+  ct.fillStyle=`rgba(200,220,255,.8)`;ct.beginPath();ct.arc(14,-52,4,0,Math.PI*2);ct.fill();  
+  for(let i=0;i<5;i++){const ma=(titleAnimT*2+i*1.257)%(Math.PI*2);ct.fillStyle=`rgba(100,180,255,${.5+Math.sin(titleAnimT*3+i)*.3})`;ct.beginPath();ct.arc(Math.cos(ma)*26+14,Math.sin(ma)*16-52,2,0,Math.PI*2);ct.fill();}  
+  ct.restore();  
+  const pulse=.75+Math.sin(titleAnimT*3)*.25;  
+  ct.fillStyle=`rgba(40,180,90,${pulse})`;  
+  rrect(CX-100,H*.76,200,50,25);ct.fill();  
+  ct.strokeStyle='rgba(120,255,150,.8)';ct.lineWidth=2.5;rrect(CX-100,H*.76,200,50,25);ct.stroke();  
+  ct.fillStyle='#fff';ct.font=`bold ${Math.floor(W*.047)}px sans-serif`;ct.textAlign='center';  
+  
+  // 🔽 3. 開始按鈕文字
+  ct.fillText('▶ Click to Start',CX,H*.76+34);  
+  
+  const sv=localStorage.getItem('mm_save');  
+  if(sv){ct.fillStyle='rgba(150,255,150,.7)';ct.font=`${Math.floor(W*.028)}px sans-serif`;
+  
+  // 🔽 4. 讀取存檔提示
+  ct.fillText('✔ Save found — Auto-loading',CX,H*.88);}  
+  
+  ct.fillStyle='rgba(255,255,255,.3)';ct.font=`${Math.floor(W*.025)}px sans-serif`;  
+  
+  // 🔽 5. 版本號
   ct.fillText('v0.5',CX,H-.015*H);
 }
   // Moon
