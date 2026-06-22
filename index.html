@@ -3166,6 +3166,9 @@ function drawDead() {
   ct.strokeStyle = 'rgba(140,180,255,.8)'; ct.lineWidth = 2.5; rrect(CX - 100, H * .64, 200, 52, 26); ct.stroke();
   ct.fillStyle = '#fff'; ct.font = `bold ${Math.floor(W * .047)}px sans-serif`; ct.textAlign = 'center';
   ct.fillText('↻ Play Again', CX, H * .64 + 36);
+  ct.font='bold 18px monospace'; ct.fillStyle='#FFD700'; ct.textAlign='center';
+  ct.fillText('Wave: '+wave, W/2, H/2+30);
+  ct.fillText('Kills: '+killCount, W/2, H/2+58);
 }
 
 /* ═══ TUTORIAL HINTS ═══ */
