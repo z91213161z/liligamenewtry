@@ -88,7 +88,7 @@ const P={wx:HX,wy:HY+210,hp:120,mxHp:120,spd:9.0,
 let hLv=0;
 let tableWood=0,tableMeat=0,tablePizza=0,tableGrain=0;
 let wave=1,wTimer=0,bossTimer=0;
-let custTimer=4*60;
+let custTimer=2*60;
 let bladeAngle=0;
 let upgradeTimers={};
 let totalDeath=0;
@@ -170,7 +170,7 @@ function restartGame(){
   // Reset combat state, keep building progress
   bears=[];drops=[];parts=[];ftexts=[];customers=[];companions=[];workers=[];
   P.hp=P.mxHp;P.wx=HX;P.wy=HY+210;P.wood=0;P.meat=0;P.grain=0;P.pizza=0;P.inv=0;
-  wave=1;wTimer=0;bossTimer=0;custTimer=4*60;
+  wave=1;wTimer=0;bossTimer=0;custTimer=2*60;
   killCount=0;playTime=0;tutorialTimer=0;totalDeath=0;bladeAngle=0;
   camX=HX-CX;camY=HY-CY;
   spawnWave(1);
@@ -961,7 +961,7 @@ function update(){
   const mkt=BLDGS.market.lv?[1.4,1.8][BLDGS.market.lv-1]:1;
   if(custTimer<=0){custTimer=Math.floor(Math.max(40,210-wave*10)/mkt);if(customers.length<custCap())spawnCustomer();}
   for(const c of customers)updateCustomer(c);customers=customers.filter(c=>!c.done);
-  wTimer++;if(wTimer>=50*60){wTimer=0;wave++;spawnWave(wave);showMsg(`⚔️ 第${wave}波蝦雞來襲！`);}
+  wTimer++;if(wTimer>=65*60){wTimer=0;wave++;spawnWave(wave);showMsg(`⚔️ 第${wave}波蝦雞來襲！`);}
   bossTimer++;if(bossTimer>=180*60){bossTimer=0;spawnBoss();}
   for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vx*=.92;p.vy*=.92;p.life--;}
   parts=parts.filter(p=>p.life>0);
@@ -1902,8 +1902,11 @@ function drawHUD(){
   ct.fillStyle=w.col;ct.font='bold 15px sans-serif';ct.textAlign='right';ct.fillText(`${w.emoji} ${w.name}`,W-14,30);
   ct.fillStyle='#ccc';ct.font='13px sans-serif';ct.fillText(`傷${Math.round(w.bAtk*wDmgMult())} 範${w.r}`,W-14,49);
   ct.fillStyle='rgba(0,0,0,.72)';rrect(W-158,60,148,46,4);ct.fill();
-  ct.fillStyle='#ffaa44';ct.font='14px sans-serif';ct.textAlign='right';ct.fillText(`第${wave}波 下波${Math.ceil((50*60-wTimer)/60)}s`,W-14,78);
+  ct.fillStyle='#ffaa44';ct.font='14px sans-serif';ct.textAlign='right';ct.fillText(`第${wave}波 下波${Math.ceil((65*60-wTimer)/60)}s`,W-14,78);
   ct.fillStyle='#ff8844';ct.fillText(`🍤BOSS ${Math.ceil((180*60-bossTimer)/60)}s`,W-14,99);
+  const ptMin=Math.floor(playTime/3600),ptSec=Math.floor(playTime/60)%60;
+  ct.fillStyle='rgba(180,220,255,.7)';ct.font='12px sans-serif';ct.textAlign='right';
+  ct.fillText(`⏱${ptMin}:${ptSec<10?'0':''}${ptSec}`,W-14,117);
   const wCnt=customers.filter(c=>c.state==='wait').length;
   if(wCnt>0){ct.fillStyle='rgba(0,0,0,.6)';rrect(10,146,200,20,4);ct.fill();ct.fillStyle='#aaffaa';ct.font='13px sans-serif';ct.textAlign='left';ct.fillText(`👥 排隊: ${wCnt}/${custCap()}人`,14,161);}
   if(hLv>0){ct.fillStyle='rgba(0,0,0,.55)';rrect(10,170,200,20,4);ct.fill();ct.fillStyle='#aaffaa';ct.font='12px sans-serif';ct.textAlign='left';ct.fillText(HOUSES[hLv].bonus,14,185);}
