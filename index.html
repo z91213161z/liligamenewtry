@@ -366,7 +366,7 @@ function loadSave() {
     for (let i = 1; i <= tgt; i++) applyHouseBonus(i);
     hLv = tgt;
     for (const [k, lv] of Object.entries(s.bldgs || {})) {
-      if (BLDGS[k]) BLGS[k].lv = lv || 0;
+      if (BLDGS[k]) BLDGS[k].lv = lv || 0;
     }
   } catch (e) {}
 }
@@ -2770,7 +2770,7 @@ function drawCastle(cx, cy, s) {
   drawFlag(cx - s * .44, cy - s * .72, s * .22, fa, '#cc2222');
   drawFlag(cx + s * .44, cy - s * .72, s * .22, fa, '#2222cc');
   drawFlag(cx, cy - s * .82, s * .24, fa, '#ffcc00');
-  for (const [tx, ty] of [[–s * .44, -s * .64], [s * .44, -s * .64]]) {
+  for (const [tx, ty] of [[-s * .44, -s * .64], [s * .44, -s * .64]]) {
     ct.fillStyle = '#ffaa22'; ct.beginPath(); ct.arc(cx + tx, cy + ty - s * .2, 3, 0, Math.PI * 2); ct.fill();
     ct.fillStyle = `rgba(255,180,0,${.5 + Math.sin(now * .005 + tx) * .3})`; ct.beginPath(); ct.arc(cx + tx, cy + ty - s * .2, 8, 0, Math.PI * 2); ct.fill();
   }
