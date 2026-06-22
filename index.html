@@ -149,7 +149,7 @@ let playTime = 0;
 let tutorialTimer = 0;
 let deathWave = 1;
 let deathKills = 0;
-let deathTime = 0;
+let deathTime = 0;let bestWave = 0, bestKills = 0;
 let titleAnimT = 0;
 let screenShake = 0;
 
@@ -356,7 +356,7 @@ function saveGame() {
   } catch (e) {}
 }
 
-function loadSave() {
+function loadSave() { try{const b=JSON.parse(localStorage.getItem('mm_best'));if(b){bestWave=b.w||0;bestKills=b.k||0;}}catch(e){}
   try {
     const s = JSON.parse(localStorage.getItem('mm_save'));
     if (!s) return;
@@ -2090,7 +2090,7 @@ function update() {
           SFX.death();
           deathWave = wave;
           deathKills = killCount;
-          deathTime = Math.floor(playTime / 60);
+          deathTime = Math.floor(playTime / 60); if(deathWave>bestWave||(deathWave===bestWave&&deathKills>bestKills)){bestWave=deathWave;bestKills=deathKills;try{localStorage.setItem('mm_best',JSON.stringify({w:bestWave,k:bestKills}));}catch(e){}}
           gameState = 'dead';
           saveGame();
         }
@@ -3155,7 +3155,7 @@ function drawDead() {
   ct.shadowBlur = 0;
   ct.fillStyle = 'rgba(255,255,255,.9)'; ct.font = `${Math.floor(W * .042)}px sans-serif`;
   const mins = Math.floor(deathTime / 60), secs = deathTime % 60;
-  ct.fillText(`Wave ${deathWave}  |  Kills ${deathKills}`, CX, H * .38);
+  ct.fillText(`Wave ${deathWave}  |  Kills ${deathKills}`, CX, H * .38); if(bestWave>0){ct.fillStyle='rgba(255,215,0,.95)';ct.font=`${Math.floor(W*.036)}px sans-serif`;ct.fillText('Best: Wave '+bestWave+' | Kills '+bestKills, CX, H*.54);}
   ct.fillText(`Play Time: ${mins}m ${secs < 10 ? '0' : ''}${secs}s`, CX, H * .46);
   ct.strokeStyle = 'rgba(255,80,80,.4)'; ct.lineWidth = 1; ct.beginPath(); ct.moveTo(CX - 120, H * .52); ct.lineTo(CX + 120, H * .52); ct.stroke();
   ct.fillStyle = 'rgba(255,200,100,.75)'; ct.font = `${Math.floor(W * .032)}px sans-serif`;
