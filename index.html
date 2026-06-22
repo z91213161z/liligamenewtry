@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>魔法商人</title>
+<title>é­æ³åäºº</title>
 <style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#1a3a0a;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;}canvas{display:block;touch-action:none;}</style>
 </head>
 <body><canvas id="c"></canvas>
@@ -15,50 +15,50 @@ const H=cv.height=Math.min(window.innerHeight,860);
 const CX=W/2,CY=H/2;
 const WS=3200,HX=WS/2,HY=WS/2;
 
-/* ═══ WEAPONS ══════════════════════════════════════════ */
+/* âââ WEAPONS ââââââââââââââââââââââââââââââââââââââââââ */
 const WEAPS=[
-  {name:'木棍', bAtk:8,  r:55,  col:'#885533',emoji:'🪵'},
-  {name:'長刀', bAtk:22, r:72,  col:'#aaccee',emoji:'⚔️'},
-  {name:'大劍', bAtk:45, r:88,  col:'#88aaff',emoji:'🗡️'},
-  {name:'魔法劍',bAtk:85, r:100, col:'#aa44ff',emoji:'🔮'},
-  {name:'龍魂刃',bAtk:150,r:116, col:'#ff6600',emoji:'🐲'},
-  {name:'虛空刃',bAtk:260,r:136, col:'#cc00ff',emoji:'✨'},
+  {name:'æ¨æ£', bAtk:8,  r:55,  col:'#885533',emoji:'ðªµ'},
+  {name:'é·å', bAtk:22, r:72,  col:'#aaccee',emoji:'âï¸'},
+  {name:'å¤§å', bAtk:45, r:88,  col:'#88aaff',emoji:'ð¡ï¸'},
+  {name:'é­æ³å',bAtk:85, r:100, col:'#aa44ff',emoji:'ð®'},
+  {name:'é¾é­å',bAtk:150,r:116, col:'#ff6600',emoji:'ð²'},
+  {name:'èç©ºå',bAtk:260,r:136, col:'#cc00ff',emoji:'â¨'},
 ];
 const WCOST=[0,60,150,380,950,2200];
 
-/* ═══ HOUSES ════════════════════════════════════════════ */
+/* âââ HOUSES ââââââââââââââââââââââââââââââââââââââââââââ */
 const HOUSES=[
-  {name:'茅草屋',cost:0,   sz:50, bonus:'起點',              wallR:140},
-  {name:'小木屋',cost:80,  sz:64, bonus:'+30最大血量',       wallR:185},
-  {name:'磚造房',cost:220, sz:82, bonus:'+0.5移動速度',      wallR:235},
-  {name:'大宅院',cost:450, sz:100,bonus:'自動回血3HP/3s',    wallR:290},
-  {name:'城堡',  cost:900, sz:126,bonus:'旋轉刀+1把',        wallR:365},
-  {name:'要塞',  cost:1800,sz:150,bonus:'+速+傷害增幅',      wallR:445},
-  {name:'魔法城堡',cost:3500,sz:180,bonus:'解鎖外圍魔法站',  wallR:535},
+  {name:'èèå±',cost:0,   sz:50, bonus:'èµ·é»',              wallR:140},
+  {name:'å°æ¨å±',cost:80,  sz:64, bonus:'+30æå¤§è¡é',       wallR:185},
+  {name:'ç£é æ¿',cost:220, sz:82, bonus:'+0.5ç§»åéåº¦',      wallR:235},
+  {name:'å¤§å®é¢',cost:450, sz:100,bonus:'èªååè¡3HP/3s',    wallR:290},
+  {name:'åå ¡',  cost:900, sz:126,bonus:'æè½å+1æ',        wallR:365},
+  {name:'è¦å¡',  cost:1800,sz:150,bonus:'+é+å·å®³å¢å¹',      wallR:445},
+  {name:'é­æ³åå ¡',cost:3500,sz:180,bonus:'è§£éå¤åé­æ³ç«',  wallR:535},
 ];
 
-/* ═══ BUILDINGS ═════════════════════════════════════════ */
+/* âââ BUILDINGS âââââââââââââââââââââââââââââââââââââââââ */
 const BLDGS={
-  lumber:{name:'伐木營',wx:HX-260,wy:HY+120,lv:0,maxLv:5,costs:[80,140,260,420,700],phase:1,
-    bonuses:['貓×1砍樹','貓×3快速','貓×6效率','貓×9雙倍','貓×12超速'],timer:0,prod:0,workers:[]},
-  meat:  {name:'肉品廠',wx:HX+260,wy:HY+120,lv:0,maxLv:4,costs:[120,200,350,550],phase:1,
-    bonuses:['自動收肉','×2速收肉','冷凍肉×2','全自動工廠'],timer:0},
-  rail:  {name:'鐵道站',wx:HX,    wy:HY+260,lv:0,maxLv:4,costs:[200,320,500,800],phase:1,
-    bonuses:['+15%售價','+30%售價','+50%售價','+80%售價'],cart:{t:0,line:0}},
-  pizza: {name:'披薩店',wx:HX-260,wy:HY-120,lv:0,maxLv:4,costs:[320,480,700,1100],phase:1,
-    bonuses:['肉→🍕','肉×0.5→🍕','豪華🍕×3','神級🍕×5']  ,timer:0},
-  farm:  {name:'農場',  wx:HX+260,wy:HY-120,lv:0,maxLv:4,costs:[180,300,520,850],phase:1,
-    bonuses:['產穀物','穀物×2速','穀物→麵包x3','神農場×5'],timer:0},
-  market:{name:'市集廣場',wx:HX+380,wy:HY-10,lv:0,maxLv:2,costs:[500,900],phase:2,
-    bonuses:['客人+50%更高價','客流×2瘋狂']},
-  mine:  {name:'礦坑',  wx:HX-380,wy:HY-10, lv:0,maxLv:2,costs:[600,1100],phase:2,
-    bonuses:['每10秒+3金幣','每5秒+8金幣'],mineTimer:0},
-  inn:   {name:'旅館',  wx:HX,    wy:HY-270,lv:0,maxLv:3,costs:[450,700,1200],phase:2,
-    bonuses:['客人等更久','客人×2消費','VIP套房×3']  ,timer:0},
-  forge: {name:'鑄造坊',wx:HX+380,wy:HY+120,lv:0,maxLv:3,costs:[400,650,1100],phase:3,
-    bonuses:['武器傷+20%','武器傷+50%','武器傷+100%']},
-  store: {name:'大倉庫',wx:HX-380,wy:HY+120,lv:0,maxLv:2,costs:[400,800],phase:3,
-    bonuses:['客人上限×2','客人上限×4']},
+  lumber:{name:'ä¼æ¨ç',wx:HX-260,wy:HY+120,lv:0,maxLv:5,costs:[80,140,260,420,700],phase:1,
+    bonuses:['è²Ã1ç æ¨¹','è²Ã3å¿«é','è²Ã6æç','è²Ã9éå','è²Ã12è¶é'],timer:0,prod:0,workers:[]},
+  meat:  {name:'èåå» ',wx:HX+260,wy:HY+120,lv:0,maxLv:4,costs:[120,200,350,550],phase:1,
+    bonuses:['èªåæ¶è','Ã2éæ¶è','å·åèÃ2','å¨èªåå·¥å» '],timer:0},
+  rail:  {name:'éµéç«',wx:HX,    wy:HY+260,lv:0,maxLv:4,costs:[200,320,500,800],phase:1,
+    bonuses:['+15%å®å¹','+30%å®å¹','+50%å®å¹','+80%å®å¹'],cart:{t:0,line:0}},
+  pizza: {name:'æ«è©åº',wx:HX-260,wy:HY-120,lv:0,maxLv:4,costs:[320,480,700,1100],phase:1,
+    bonuses:['èâð','èÃ0.5âð','è±ªè¯ðÃ3','ç¥ç´ðÃ5']  ,timer:0},
+  farm:  {name:'è¾²å ´',  wx:HX+260,wy:HY-120,lv:0,maxLv:4,costs:[180,300,520,850],phase:1,
+    bonuses:['ç¢ç©ç©','ç©ç©Ã2é','ç©ç©âéºµåx3','ç¥è¾²å ´Ã5'],timer:0},
+  market:{name:'å¸éå»£å ´',wx:HX+380,wy:HY-10,lv:0,maxLv:2,costs:[500,900],phase:2,
+    bonuses:['å®¢äºº+50%æ´é«å¹','å®¢æµÃ2çç']},
+  mine:  {name:'ç¤¦å',  wx:HX-380,wy:HY-10, lv:0,maxLv:2,costs:[600,1100],phase:2,
+    bonuses:['æ¯10ç§+3éå¹£','æ¯5ç§+8éå¹£'],mineTimer:0},
+  inn:   {name:'æé¤¨',  wx:HX,    wy:HY-270,lv:0,maxLv:3,costs:[450,700,1200],phase:2,
+    bonuses:['å®¢äººç­æ´ä¹','å®¢äººÃ2æ¶è²»','VIPå¥æ¿Ã3']  ,timer:0},
+  forge: {name:'éé å',wx:HX+380,wy:HY+120,lv:0,maxLv:3,costs:[400,650,1100],phase:3,
+    bonuses:['æ­¦å¨å·+20%','æ­¦å¨å·+50%','æ­¦å¨å·+100%']},
+  store: {name:'å¤§ååº«',wx:HX-380,wy:HY+120,lv:0,maxLv:2,costs:[400,800],phase:3,
+    bonuses:['å®¢äººä¸éÃ2','å®¢äººä¸éÃ4']},
 };
 const ANVIL={wx:HX-130,wy:HY+8};
 const TABLE={wx:HX+130,wy:HY+8};
@@ -66,7 +66,7 @@ const RECRUIT={wx:HX,wy:HY+50}; // cat recruitment post
 const BARRACKS1={wx:HX-210,wy:HY+65}; // left barracks - sword
 const BARRACKS2={wx:HX+210,wy:HY+65}; // right barracks - shield
 
-/* ═══ OUTPOST SPOTS (unlocked at hLv>=6) ════════════════ */
+/* âââ OUTPOST SPOTS (unlocked at hLv>=6) ââââââââââââââââ */
 const OUTPOST_SPOTS=[
   {wx:HX-920,wy:HY,    active:false,timer:0,type:'gold'},
   {wx:HX+920,wy:HY,    active:false,timer:0,type:'wood'},
@@ -76,7 +76,7 @@ const OUTPOST_SPOTS=[
   {wx:HX+700,wy:HY-700,active:false,timer:0,type:'meat'},
 ];
 
-/* ═══ PLAYER ════════════════════════════════════════════ */
+/* âââ PLAYER ââââââââââââââââââââââââââââââââââââââââââââ */
 const P={wx:HX,wy:HY+210,hp:120,mxHp:120,spd:9.0,
   wLv:1,wood:0,meat:0,pizza:0,grain:0,gold:0,
   facing:0,animT:0,moving:false,inv:0,
@@ -84,7 +84,7 @@ const P={wx:HX,wy:HY+210,hp:120,mxHp:120,spd:9.0,
   coinAnim:0,
 };
 
-/* ═══ STATE ═════════════════════════════════════════════ */
+/* âââ STATE âââââââââââââââââââââââââââââââââââââââââââââ */
 let hLv=0;
 let tableWood=0,tableMeat=0,tablePizza=0,tableGrain=0;
 let wave=1,wTimer=0,bossTimer=0;
@@ -105,7 +105,7 @@ let deathWave=1,deathKills=0,deathTime=0;
 let titleAnimT=0;
 let screenShake=0; // B2: screen shake on hurt
 
-/* ═══ WEB AUDIO ENGINE ═══════════════════════════════════ */
+/* âââ WEB AUDIO ENGINE âââââââââââââââââââââââââââââââââââ */
 const SFX=(()=>{
   let ctx=null;
   function ac(){if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}return ctx;}
@@ -137,7 +137,7 @@ function wDmgMult(){
 function compShieldCount(){return companions.filter(c=>c.type==='shield').length;}
 function maxCats(){return Math.min(3+BLDGS.lumber.lv*2+hLv,20);}
 
-/* ═══ INIT ══════════════════════════════════════════════ */
+/* âââ INIT ââââââââââââââââââââââââââââââââââââââââââââââ */
 function init(){
   for(let i=0;i<520;i++){
     let x,y,tries=0;
@@ -145,9 +145,10 @@ function init(){
     while(tries<300&&isNearBase(x,y,110));
     trees.push({x,y,r:14+Math.random()*18,cd:0,type:Math.random()<.15?'pine':'oak'});
   }
+  loadSave();
   spawnWave(1);
 }
-/* ═══ SAVE / LOAD ════════════════════════════════════════ */
+/* âââ SAVE / LOAD ââââââââââââââââââââââââââââââââââââââââ */
 function saveGame(){
   try{localStorage.setItem('mm_save',JSON.stringify({
     hLv,wLv:P.wLv,gold:P.gold,
@@ -200,10 +201,10 @@ function spawnBoss(){
   bears.push({x:HX+Math.cos(a)*780,y:HY+Math.sin(a)*780,
     hp:450+wave*120,mxHp:450+wave*120,spd:.65,atk:12+wave*3,sz:52,
     boss:true,state:'chase',angle:0,wT:0,atkCd:120,flash:0,bladeCd:0});
-  showMsg('⚠️ 巨型蝦雞BOSS出現！');
+  showMsg('â ï¸ å·¨åè¦éBOSSåºç¾ï¼');
 }
 
-/* ═══ CAT WORKER SYSTEM ═════════════════════════════════ */
+/* âââ CAT WORKER SYSTEM âââââââââââââââââââââââââââââââââ */
 function spawnCat(forced){
   if(workers.length>=maxCats()&&!forced) return;
   const lb=BLDGS.lumber;
@@ -229,7 +230,7 @@ function updateWorkers(){
         const n=BLDGS.lumber.lv>=4?3:BLDGS.lumber.lv>=3?2:1;
         w._tree.cd=280;tableWood+=n;w.carrying=n;
         spawnP(w._tree.x,w._tree.y,'#8a5522',3);
-        ft(w._tree.x,w._tree.y,`🪓+${n}木`,'#ddaa66');
+        ft(w._tree.x,w._tree.y,`ðª+${n}æ¨`,'#ddaa66');
         w.state='walk_back';w.tx=BLDGS.lumber.wx;w.ty=BLDGS.lumber.wy;w.timer=0;
       } else if(w.timer>80){w.state='idle';w.timer=0;}
     } else if(w.state==='walk_back'){
@@ -291,21 +292,21 @@ function drawCat(wk){
 
   if(wk.carrying>0){
     ct.fillStyle='#7a4422';ct.fillRect(sx-3,sy-12,6,5);
-    ct.font='9px sans-serif';ct.textAlign='center';ct.fillText('🪵',sx,sy-8);
+    ct.font='9px sans-serif';ct.textAlign='center';ct.fillText('ðªµ',sx,sy-8);
   }
 }
 
-/* ═══ INPUT ═════════════════════════════════════════════ */
+/* âââ INPUT âââââââââââââââââââââââââââââââââââââââââââââ */
 document.addEventListener('keydown',e=>{keys[e.key]=true;});
 document.addEventListener('keyup',e=>keys[e.key]=false);
 cv.addEventListener('touchstart',e=>{e.preventDefault();for(const t of e.changedTouches){if(t.clientX<W*.45){joy.on=true;joy.id=t.identifier;joy.bx=t.clientX;joy.by=t.clientY;joy.dx=0;joy.dy=0;}}},{passive:false});
 cv.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===joy.id){joy.dx=t.clientX-joy.bx;joy.dy=t.clientY-joy.by;}},{passive:false});
 cv.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===joy.id){joy.on=false;joy.dx=0;joy.dy=0;}},{passive:false});
 
-/* ═══ COMPANION SYSTEM ═══════════════════════════════════ */
+/* âââ COMPANION SYSTEM âââââââââââââââââââââââââââââââââââ */
 const COMP_COLS=['#ff88cc','#ddddff','#ff6622','#222244','#aa44ff','#44cc88'];
 const COMP_DESIGNS=['pink','white','flame','black','violet','jade'];
-const COMP_NAMES_MAP=['莉莉絲','雪晴','緋炎','暗月','紫苑','翠瑤'];
+const COMP_NAMES_MAP=['èèçµ²','éªæ´','ç·ç','ææ','ç´«è','ç¿ ç¤'];
 function maxCompanions(){return Math.min(2+Math.floor(hLv/2),6);}
 function spawnCompanion(type){
   const i=companions.length;
@@ -340,7 +341,7 @@ function updateCompanions(){
   }
   companions=companions.filter(c=>c.hp>0);
 }
-/* ═══ COMPANION DESIGN DRAW FUNCTIONS ═══════════════════ */
+/* âââ COMPANION DESIGN DRAW FUNCTIONS âââââââââââââââââââ */
 // Shared HP bar + name tag
 function compHUD(sx,sy,c){
   const bw=34,bx=sx-bw/2,by=sy-38;
@@ -350,7 +351,7 @@ function compHUD(sx,sy,c){
   ct.fillStyle='rgba(255,255,255,.9)';ct.font='bold 9px sans-serif';ct.textAlign='center';ct.fillText(c.name,sx,by-2);
 }
 
-// 粉色兔耳女生 (Lilith)
+// ç²è²åè³å¥³ç (Lilith)
 function drawCompPink(sx,sy,fl,lg,now){
   // Legs - black stockings
   ct.fillStyle=fl?'#fff':'#111';ct.fillRect(sx-5,sy+8+lg,5,14);ct.fillRect(sx,sy+8-lg,5,14);
@@ -410,7 +411,7 @@ function drawCompPink(sx,sy,fl,lg,now){
   ct.fillStyle='rgba(255,120,160,.3)';ct.beginPath();ct.ellipse(sx-5.5,sy-19,3.5,2,0,0,Math.PI*2);ct.fill();ct.beginPath();ct.ellipse(sx+5.5,sy-19,3.5,2,0,0,Math.PI*2);ct.fill();
 }
 
-// 白色兔耳女生 (Yukisei)
+// ç½è²åè³å¥³ç (Yukisei)
 function drawCompWhite(sx,sy,fl,lg,now){
   // Black thigh highs
   ct.fillStyle=fl?'#fff':'#111';ct.fillRect(sx-5,sy+8+lg,5,14);ct.fillRect(sx,sy+8-lg,5,14);
@@ -465,7 +466,7 @@ function drawCompWhite(sx,sy,fl,lg,now){
   ct.fillStyle='#fff';ct.beginPath();ct.arc(sx+4,sy-23.5,1,0,Math.PI*2);ct.fill();
 }
 
-// 緋炎戰士 (Hioen) - custom fire warrior
+// ç·çæ°å£« (Hioen) - custom fire warrior
 function drawCompFlame(sx,sy,fl,lg,now){
   const heat=Math.sin(now*.006)*.4+.6;
   // Fire aura
@@ -477,7 +478,7 @@ function drawCompFlame(sx,sy,fl,lg,now){
   ct.fillStyle=fl?'#fff':'#aa1122';ct.beginPath();ct.ellipse(sx,sy-2,11,14,0,0,Math.PI*2);ct.fill();ct.fillRect(sx-11,sy-12,22,20);
   ct.fillStyle=fl?'rgba(255,255,255,.3)':'rgba(255,80,0,.25)';ct.fillRect(sx-10,sy-12,10,18);
   // Flame emblem on chest
-  ct.fillStyle=fl?'rgba(255,255,255,.4)':`rgba(255,180,0,${heat*.7})`;ct.font='12px sans-serif';ct.textAlign='center';ct.fillText('🔥',sx,sy-4);
+  ct.fillStyle=fl?'rgba(255,255,255,.4)':`rgba(255,180,0,${heat*.7})`;ct.font='12px sans-serif';ct.textAlign='center';ct.fillText('ð¥',sx,sy-4);
   // Shoulder plates (orange)
   ct.fillStyle=fl?'#fff':'#cc4400';ct.fillRect(sx-14,sy-14,5,8);ct.fillRect(sx+9,sy-14,5,8);
   // Big flaming sword
@@ -510,7 +511,7 @@ function drawCompFlame(sx,sy,fl,lg,now){
   for(let i=0;i<3;i++){const a=(now*.008+i*2.1)%(Math.PI*2);ct.fillStyle=`rgba(255,180,0,${.6+Math.sin(now*.01+i)*.3})`;ct.beginPath();ct.arc(sx+Math.cos(a)*12,sy-24+Math.sin(a)*8,1.5,0,Math.PI*2);ct.fill();}
 }
 
-// 黑兔女僕 (Antsuki) - black maid bunny
+// é»åå¥³å (Antsuki) - black maid bunny
 function drawCompBlack(sx,sy,fl,lg,now){
   // White frilly stockings then dark thighs
   ct.fillStyle=fl?'#fff':'#f0f0f0';ct.fillRect(sx-5,sy+12+lg,5,10);ct.fillRect(sx,sy+12-lg,5,10);
@@ -583,7 +584,7 @@ function drawCompBlack(sx,sy,fl,lg,now){
   ct.fillStyle='rgba(180,120,180,.2)';ct.beginPath();ct.ellipse(sx-5.5,sy-19.5,3,1.5,0,0,Math.PI*2);ct.fill();ct.beginPath();ct.ellipse(sx+5.5,sy-19.5,3,1.5,0,0,Math.PI*2);ct.fill();
 }
 
-// 紫苑 (Violet) - custom purple sorceress
+// ç´«è (Violet) - custom purple sorceress
 function drawCompViolet(sx,sy,fl,lg,now){
   const pulse=Math.sin(now*.004)*.4+.6;
   ct.fillStyle=`rgba(120,0,200,${pulse*.1})`;ct.beginPath();ct.arc(sx,sy-8,20,0,Math.PI*2);ct.fill();
@@ -619,7 +620,7 @@ function drawCompViolet(sx,sy,fl,lg,now){
   for(let i=0;i<3;i++){const a=(now*.003+i*2.1)%(Math.PI*2);ct.fillStyle=`rgba(180,100,255,${.5+Math.sin(now*.005+i)*.3})`;ct.beginPath();ct.arc(sx+Math.cos(a)*14,sy-22+Math.sin(a)*10,1.5,0,Math.PI*2);ct.fill();}
 }
 
-// 翠瑤 (Jade) - green nature ranger
+// ç¿ ç¤ (Jade) - green nature ranger
 function drawCompJade(sx,sy,fl,lg,now){
   ct.fillStyle=fl?'#fff':'#112210';ct.fillRect(sx-5,sy+8+lg,5,14);ct.fillRect(sx,sy+8-lg,5,14);
   ct.fillStyle=fl?'#fff':'#0a1a08';ct.fillRect(sx-6,sy+20+lg,8,5);ct.fillRect(sx-1,sy+20-lg,8,5);
@@ -627,7 +628,7 @@ function drawCompJade(sx,sy,fl,lg,now){
   ct.fillStyle=fl?'#fff':'#1a3a10';ct.beginPath();ct.ellipse(sx,sy-2,10,13,0,0,Math.PI*2);ct.fill();ct.fillRect(sx-10,sy-12,20,20);
   ct.fillStyle=fl?'rgba(255,255,255,.2)':'rgba(80,180,40,.2)';ct.fillRect(sx-9,sy-12,9,18);
   // Leaf motif
-  ct.fillStyle=fl?'rgba(255,255,255,.4)':`rgba(80,220,50,.5)`;ct.font='10px sans-serif';ct.textAlign='center';ct.fillText('🍃',sx,sy-6);
+  ct.fillStyle=fl?'rgba(255,255,255,.4)':`rgba(80,220,50,.5)`;ct.font='10px sans-serif';ct.textAlign='center';ct.fillText('ð',sx,sy-6);
   // Quiver + bow
   ct.fillStyle=fl?'#fff':'#553300';ct.fillRect(sx+9,sy-16,3,20);ct.fillStyle=fl?'#eee':'#8a6622';
   for(let i=0;i<3;i++){ct.fillRect(sx+10,sy-15+i*5,2,4);}
@@ -654,10 +655,10 @@ function drawCompJade(sx,sy,fl,lg,now){
   ct.fillStyle='rgba(100,255,150,.5)';ct.beginPath();ct.ellipse(sx+3,sy-23.5,1,1,0,0,Math.PI*2);ct.fill();
   ct.fillStyle='#fff';ct.beginPath();ct.arc(sx+4,sy-23.5,1,0,Math.PI*2);ct.fill();
   // Leaf particle
-  const la=(now*.001)%(Math.PI*2);ct.fillStyle=`rgba(80,200,50,.6)`;ct.font='9px sans-serif';ct.textAlign='center';ct.fillText('🍃',sx+Math.cos(la)*12,sy-22+Math.sin(la)*8);
+  const la=(now*.001)%(Math.PI*2);ct.fillStyle=`rgba(80,200,50,.6)`;ct.font='9px sans-serif';ct.textAlign='center';ct.fillText('ð',sx+Math.cos(la)*12,sy-22+Math.sin(la)*8);
 }
 
-/* ═══ COMPANION DISPATCHER ══════════════════════════════ */
+/* âââ COMPANION DISPATCHER ââââââââââââââââââââââââââââââ */
 function drawCompanion(c){
   const[sx,sy]=ws(c.x,c.y);
   if(sx<-40||sx>W+40||sy<-40||sy>H+40) return;
@@ -677,7 +678,7 @@ function drawCompanion(c){
   compHUD(sx,sy,c);
 }
 
-/* ═══ AUTO-UPGRADE ══════════════════════════════════════ */
+/* âââ AUTO-UPGRADE ââââââââââââââââââââââââââââââââââââââ */
 const PROX=88,PROX_HOLD=65;
 function phase2OK(){return BLDGS.lumber.lv>=1&&BLDGS.meat.lv>=1&&BLDGS.rail.lv>=1&&BLDGS.pizza.lv>=1&&BLDGS.farm.lv>=1;}
 function phase3OK(){return hLv>=2;}
@@ -688,55 +689,55 @@ function tickAutoUpgrade(){
   tickProx('house',HX,HY,()=>{
     if(hLv>=HOUSES.length-1) return false;
     const cost=HOUSES[hLv+1].cost;
-    if(P.gold<cost){showMsg(`需要${cost}💰升級房屋`);return false;}
+    if(P.gold<cost){showMsg(`éè¦${cost}ð°åç´æ¿å±`);return false;}
     P.gold-=cost;hLv++;applyHouseBonus(hLv);saveGame();SFX.upgrade();
-    spawnP(HX,HY,'#ffdd44',28);ft(HX,HY-80,`🏠升級→${HOUSES[hLv].name}！`,'#ffff66');
+    spawnP(HX,HY,'#ffdd44',28);ft(HX,HY-80,`ð åç´â${HOUSES[hLv].name}ï¼`,'#ffff66');
     showMsg(`${HOUSES[hLv].name} | ${HOUSES[hLv].bonus}`);return true;
   });
   // Anvil
   tickProx('anvil',ANVIL.wx,ANVIL.wy,()=>{
     if(P.wLv>=WEAPS.length) return false;
     const cost=WCOST[P.wLv];
-    if(P.gold<cost){showMsg(`需要${cost}💰升級武器`);return false;}
+    if(P.gold<cost){showMsg(`éè¦${cost}ð°åç´æ­¦å¨`);return false;}
     P.gold-=cost;P.wLv++;
-    ft(P.wx,P.wy-50,`⚔️${WEAPS[P.wLv-1].name}！`,'#ffee44');spawnP(P.wx,P.wy,'#ffdd44',22);return true;
+    ft(P.wx,P.wy-50,`âï¸${WEAPS[P.wLv-1].name}ï¼`,'#ffee44');spawnP(P.wx,P.wy,'#ffdd44',22);return true;
   });
   // Table auto-deposit
   if(Math.hypot(P.wx-TABLE.wx,P.wy-TABLE.wy)<PROX){
-    if(P.wood>0){tableWood+=P.wood;ft(P.wx,P.wy-30,`+${P.wood}木`,'#ddaa66');P.wood=0;}
-    if(P.meat>0){tableMeat+=P.meat;ft(P.wx,P.wy-46,`+${P.meat}🥩`,'#ffaa66');P.meat=0;}
-    if(P.pizza>0){tablePizza+=P.pizza;ft(P.wx,P.wy-62,`+${P.pizza}🍕`,'#ffcc88');P.pizza=0;}
-    if(P.grain>0){tableGrain+=P.grain;ft(P.wx,P.wy-78,`+${P.grain}🌾`,'#eebb44');P.grain=0;}
+    if(P.wood>0){tableWood+=P.wood;ft(P.wx,P.wy-30,`+${P.wood}æ¨`,'#ddaa66');P.wood=0;}
+    if(P.meat>0){tableMeat+=P.meat;ft(P.wx,P.wy-46,`+${P.meat}ð¥©`,'#ffaa66');P.meat=0;}
+    if(P.pizza>0){tablePizza+=P.pizza;ft(P.wx,P.wy-62,`+${P.pizza}ð`,'#ffcc88');P.pizza=0;}
+    if(P.grain>0){tableGrain+=P.grain;ft(P.wx,P.wy-78,`+${P.grain}ð¾`,'#eebb44');P.grain=0;}
   }
   // Recruit station - hire a cat
   tickProx('recruit',RECRUIT.wx,RECRUIT.wy,()=>{
-    if(workers.length>=maxCats()){showMsg(`貓已滿(${maxCats()}隻)！升級伐木營增加上限`);return false;}
+    if(workers.length>=maxCats()){showMsg(`è²å·²æ»¿(${maxCats()}é»)ï¼åç´ä¼æ¨çå¢å ä¸é`);return false;}
     const cost=50+workers.length*30;
-    if(P.gold<cost){showMsg(`需要${cost}💰招募貓咪`);return false;}
+    if(P.gold<cost){showMsg(`éè¦${cost}ð°æåè²åª`);return false;}
     P.gold-=cost;spawnCat(true);
-    ft(RECRUIT.wx,RECRUIT.wy-40,'🐱新貓咪加入！','#ffeeaa');
+    ft(RECRUIT.wx,RECRUIT.wy-40,'ð±æ°è²åªå å¥ï¼','#ffeeaa');
     spawnP(RECRUIT.wx,RECRUIT.wy,'#ffcc44',18);
-    showMsg(`🐱貓咪招募！(${workers.length}/${maxCats()}隻)`);return true;
+    showMsg(`ð±è²åªæåï¼(${workers.length}/${maxCats()}é»)`);return true;
   });
   // Barracks 1 - sword companion
   tickProx('bar1',BARRACKS1.wx,BARRACKS1.wy,()=>{
-    if(companions.length>=maxCompanions()){showMsg(`同伴已滿(${maxCompanions()}人)！升級房屋增加上限`);return false;}
+    if(companions.length>=maxCompanions()){showMsg(`åä¼´å·²æ»¿(${maxCompanions()}äºº)ï¼åç´æ¿å±å¢å ä¸é`);return false;}
     const cost=120+companions.length*80;
-    if(P.gold<cost){showMsg(`需要${cost}💰招募⚔️劍士同伴`);return false;}
+    if(P.gold<cost){showMsg(`éè¦${cost}ð°æåâï¸åå£«åä¼´`);return false;}
     P.gold-=cost;spawnCompanion('sword');
-    ft(BARRACKS1.wx,BARRACKS1.wy-44,'⚔️劍士加入！','#aaccff');
+    ft(BARRACKS1.wx,BARRACKS1.wy-44,'âï¸åå£«å å¥ï¼','#aaccff');
     spawnP(BARRACKS1.wx,BARRACKS1.wy,'#3355cc',22);
-    showMsg(`⚔️劍士同伴！攻擊+, 同伴${companions.length}/${maxCompanions()}`);return true;
+    showMsg(`âï¸åå£«åä¼´ï¼æ»æ+, åä¼´${companions.length}/${maxCompanions()}`);return true;
   });
   // Barracks 2 - shield companion
   tickProx('bar2',BARRACKS2.wx,BARRACKS2.wy,()=>{
-    if(companions.length>=maxCompanions()){showMsg(`同伴已滿(${maxCompanions()}人)！升級房屋增加上限`);return false;}
+    if(companions.length>=maxCompanions()){showMsg(`åä¼´å·²æ»¿(${maxCompanions()}äºº)ï¼åç´æ¿å±å¢å ä¸é`);return false;}
     const cost=140+companions.length*80;
-    if(P.gold<cost){showMsg(`需要${cost}💰招募🛡️盾衛同伴`);return false;}
+    if(P.gold<cost){showMsg(`éè¦${cost}ð°æåð¡ï¸ç¾è¡åä¼´`);return false;}
     P.gold-=cost;spawnCompanion('shield');
-    ft(BARRACKS2.wx,BARRACKS2.wy-44,'🛡️盾衛加入！','#aaffcc');
+    ft(BARRACKS2.wx,BARRACKS2.wy-44,'ð¡ï¸ç¾è¡å å¥ï¼','#aaffcc');
     spawnP(BARRACKS2.wx,BARRACKS2.wy,'#229955',22);
-    showMsg(`🛡️盾衛同伴！防禦+, 同伴${companions.length}/${maxCompanions()}`);return true;
+    showMsg(`ð¡ï¸ç¾è¡åä¼´ï¼é²ç¦¦+, åä¼´${companions.length}/${maxCompanions()}`);return true;
   });
   // Outpost placement
   if(hLv>=6){
@@ -744,10 +745,10 @@ function tickAutoUpgrade(){
       const sp=OUTPOST_SPOTS[i];
       if(sp.active) continue;
       tickProx(`outpost${i}`,sp.wx,sp.wy,()=>{
-        if(P.gold<800){showMsg('需要800💰建立魔法站');return false;}
+        if(P.gold<800){showMsg('éè¦800ð°å»ºç«é­æ³ç«');return false;}
         P.gold-=800;sp.active=true;sp.timer=0;
-        spawnP(sp.wx,sp.wy,'#aa44ff',30);ft(sp.wx,sp.wy-60,'✨魔法站建立！','#cc88ff');
-        showMsg(`魔法站(${sp.type})建立！`);return true;
+        spawnP(sp.wx,sp.wy,'#aa44ff',30);ft(sp.wx,sp.wy-60,'â¨é­æ³ç«å»ºç«ï¼','#cc88ff');
+        showMsg(`é­æ³ç«(${sp.type})å»ºç«ï¼`);return true;
       });
     }
   }
@@ -757,10 +758,10 @@ function tickAutoUpgrade(){
     tickProx(k,b.wx,b.wy,()=>{
       if(b.lv>=b.maxLv) return false;
       const cost=b.costs[b.lv];
-      if(P.gold<cost){showMsg(`需要${cost}💰升級${b.name}`);return false;}
+      if(P.gold<cost){showMsg(`éè¦${cost}ð°åç´${b.name}`);return false;}
       P.gold-=cost;b.lv++;saveGame();SFX.upgrade();spawnP(b.wx,b.wy,'#44ffaa',22);
       ft(b.wx,b.wy-50,`${b.name} Lv${b.lv}`,'#88ff88');
-      showMsg(`${b.name} Lv${b.lv}：${b.bonuses[b.lv-1]}`);return true;
+      showMsg(`${b.name} Lv${b.lv}ï¼${b.bonuses[b.lv-1]}`);return true;
     });
   }
 }
@@ -775,10 +776,10 @@ function applyHouseBonus(lv){
   else if(lv===3)P.autoHeal=true;
   else if(lv===4)P.bonusBlade=1;
   else if(lv===5){P.spd+=1.0;P.mxHp+=50;P.hp=Math.min(P.hp+50,P.mxHp);}
-  else if(lv===6){P.bonusBlade++;showMsg('✨魔法城堡解鎖！外圍魔法站可建立！');}
+  else if(lv===6){P.bonusBlade++;showMsg('â¨é­æ³åå ¡è§£éï¼å¤åé­æ³ç«å¯å»ºç«ï¼');}
 }
 
-/* ═══ BLADE ═════════════════════════════════════════════ */
+/* âââ BLADE âââââââââââââââââââââââââââââââââââââââââââââ */
 function updateBlade(){
   bladeAngle+=.055;
   const w=WEAPS[P.wLv-1],R=w.r,atk=Math.round(w.bAtk*wDmgMult());
@@ -795,7 +796,7 @@ function updateBlade(){
     if(t.cd>0) continue;
     if(Math.hypot(P.wx-t.x,P.wy-t.y)<R+t.r){
       const n=BLDGS.lumber.lv>=3?2:1;
-      P.wood+=n;t.cd=340;spawnP(t.x,t.y,'#8a5522',3);ft(t.x,t.y,n>1?'+木×2':'+木','#ddaa66');
+      P.wood+=n;t.cd=340;spawnP(t.x,t.y,'#8a5522',3);ft(t.x,t.y,n>1?'+æ¨Ã2':'+æ¨','#ddaa66');
     }
   }
 }
@@ -805,48 +806,48 @@ function killBear(b){
   spawnP(b.x,b.y,'#ffaa44',b.boss?32:12);
   const n=b.boss?8:1;
   for(let i=0;i<n;i++) drops.push({x:b.x+(Math.random()-.5)*40,y:b.y+(Math.random()-.5)*40,type:'meat',age:0,taken:false});
-  ft(b.x,b.y-16,`+🥩×${n}`,'#ffcc44');
-  if(b.boss){screenShake=20;P.gold+=50;ft(b.x,b.y-36,'BOSS! +50💰','#ffff44');}
+  ft(b.x,b.y-16,`+ð¥©Ã${n}`,'#ffcc44');
+  if(b.boss){screenShake=20;P.gold+=50;ft(b.x,b.y-36,'BOSS! +50ð°','#ffff44');}
   else{// Regular kill: 40% chance to drop 3-12 gold
-    if(Math.random()<.4){const g=3+Math.floor(Math.random()*10);P.gold+=g;ft(b.x,b.y-28,`+${g}💰`,'#ffdd44');SFX.coin();}
+    if(Math.random()<.4){const g=3+Math.floor(Math.random()*10);P.gold+=g;ft(b.x,b.y-28,`+${g}ð°`,'#ffdd44');SFX.coin();}
   }
 }
 
-/* ═══ BUILDINGS TICK ════════════════════════════════════ */
+/* âââ BUILDINGS TICK ââââââââââââââââââââââââââââââââââââ */
 function tickBuildings(){
   updateWorkers();
   // Meat factory
   const mf=BLDGS.meat;
-  if(mf.lv>0){mf.timer++;const rate=[380,200,130,80][mf.lv-1];if(mf.timer>=rate){mf.timer=0;let col=0;for(const d of drops)if(!d.taken&&d.type==='meat'){d.taken=true;col++;}if(col>0){const bonus=mf.lv>=3?2:1;tableMeat+=col*bonus;spawnP(mf.wx,mf.wy,'#ffaa66',5);ft(mf.wx,mf.wy-24,`收肉+${col*bonus}`,'#ffaa66');}}}
+  if(mf.lv>0){mf.timer++;const rate=[380,200,130,80][mf.lv-1];if(mf.timer>=rate){mf.timer=0;let col=0;for(const d of drops)if(!d.taken&&d.type==='meat'){d.taken=true;col++;}if(col>0){const bonus=mf.lv>=3?2:1;tableMeat+=col*bonus;spawnP(mf.wx,mf.wy,'#ffaa66',5);ft(mf.wx,mf.wy-24,`æ¶è+${col*bonus}`,'#ffaa66');}}}
   // Pizza
   const pz=BLDGS.pizza;
-  if(pz.lv>0){pz.timer++;const meat=[2,1,1,1][pz.lv-1],out=[1,1,2,4][pz.lv-1],cd=[10800,7200,5000,3500][pz.lv-1];if(pz.timer>=cd&&tableMeat>=meat){pz.timer=0;tableMeat-=meat;tablePizza+=out;spawnP(pz.wx,pz.wy,'#ffcc44',8);ft(pz.wx,pz.wy-28,`🍕×${out}`,'#ffee66');}}
+  if(pz.lv>0){pz.timer++;const meat=[2,1,1,1][pz.lv-1],out=[1,1,2,4][pz.lv-1],cd=[10800,7200,5000,3500][pz.lv-1];if(pz.timer>=cd&&tableMeat>=meat){pz.timer=0;tableMeat-=meat;tablePizza+=out;spawnP(pz.wx,pz.wy,'#ffcc44',8);ft(pz.wx,pz.wy-28,`ðÃ${out}`,'#ffee66');}}
   // Farm
   const fm=BLDGS.farm;
-  if(fm.lv>0){fm.timer++;const rate=[480,280,200,130][fm.lv-1];if(fm.timer>=rate){fm.timer=0;const n=fm.lv>=4?5:fm.lv>=3?3:1;tableGrain+=n;spawnP(fm.wx,fm.wy,'#ddcc44',5);ft(fm.wx,fm.wy-24,`+🌾${n}`,'#eebb44');}}
+  if(fm.lv>0){fm.timer++;const rate=[480,280,200,130][fm.lv-1];if(fm.timer>=rate){fm.timer=0;const n=fm.lv>=4?5:fm.lv>=3?3:1;tableGrain+=n;spawnP(fm.wx,fm.wy,'#ddcc44',5);ft(fm.wx,fm.wy-24,`+ð¾${n}`,'#eebb44');}}
   // Rail
   const rl=BLDGS.rail;
-  if(rl.lv>0){const spd=[.004,.008,.014,.022][rl.lv-1];rl.cart.t=(rl.cart.t||0)+spd;if(rl.cart.t>=1){rl.cart.t=0;ft(TABLE.wx,TABLE.wy-28,'🚂+木','#ddaa66');}}
+  if(rl.lv>0){const spd=[.004,.008,.014,.022][rl.lv-1];rl.cart.t=(rl.cart.t||0)+spd;if(rl.cart.t>=1){rl.cart.t=0;ft(TABLE.wx,TABLE.wy-28,'ð+æ¨','#ddaa66');}}
   // Inn
   const inn=BLDGS.inn;
   if(inn.lv>0){inn.timer=(inn.timer||0)+1;}
   // Mine
   const mn=BLDGS.mine;
-  if(mn.lv>0){mn.mineTimer=(mn.mineTimer||0)+1;const rate=mn.lv>=2?300:600;const amount=mn.lv>=2?8:3;if(mn.mineTimer>=rate){mn.mineTimer=0;P.gold+=amount;ft(mn.wx,mn.wy-24,`+${amount}💰(礦)`,'#ffdd44');}}
+  if(mn.lv>0){mn.mineTimer=(mn.mineTimer||0)+1;const rate=mn.lv>=2?300:600;const amount=mn.lv>=2?8:3;if(mn.mineTimer>=rate){mn.mineTimer=0;P.gold+=amount;ft(mn.wx,mn.wy-24,`+${amount}ð°(ç¤¦)`,'#ffdd44');}}
   // Outposts
   for(const sp of OUTPOST_SPOTS){
     if(!sp.active) continue;
     sp.timer++;
     if(sp.timer>=360){sp.timer=0;
-      if(sp.type==='gold'){P.gold+=12;ft(sp.wx,sp.wy-30,'+12💰','#ffdd44');}
-      else if(sp.type==='wood'){tableWood+=4;ft(sp.wx,sp.wy-30,'+4木','#ddaa66');}
-      else if(sp.type==='meat'){tableMeat+=3;ft(sp.wx,sp.wy-30,'+3🥩','#ffaa66');}
+      if(sp.type==='gold'){P.gold+=12;ft(sp.wx,sp.wy-30,'+12ð°','#ffdd44');}
+      else if(sp.type==='wood'){tableWood+=4;ft(sp.wx,sp.wy-30,'+4æ¨','#ddaa66');}
+      else if(sp.type==='meat'){tableMeat+=3;ft(sp.wx,sp.wy-30,'+3ð¥©','#ffaa66');}
       spawnP(sp.wx,sp.wy,'#aa44ff',6);
     }
   }
 }
 
-/* ═══ CUSTOMERS ══════════════════════════════════════════ */
+/* âââ CUSTOMERS ââââââââââââââââââââââââââââââââââââââââââ */
 function custCap(){let c=28;if(BLDGS.store.lv>=1)c*=2;if(BLDGS.store.lv>=2)c*=2;return c;}
 function railMult(){return BLDGS.rail.lv?[1.15,1.30,1.50,1.80][BLDGS.rail.lv-1]:1;}
 function innMult(){return BLDGS.market.lv?1.5:1;}
@@ -872,16 +873,16 @@ function updateCustomer(c){
     let bought=false;
     if(c.type==='pizza'&&tablePizza>0){
       const n=Math.min(tablePizza,1+rng(2)),price=Math.floor(n*(BLDGS.pizza.lv>=4?150:BLDGS.pizza.lv>=3?90:42+rng(14))*mult);
-      tablePizza-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',10);ft(tx,ty-22,`+${price}💰🍕`,'#ffdd44');c.state='leave';bought=true;
+      tablePizza-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',10);ft(tx,ty-22,`+${price}ð°ð`,'#ffdd44');c.state='leave';bought=true;
     } else if(c.type==='grain'&&tableGrain>0){
       const n=Math.min(tableGrain,2+rng(3)),price=Math.floor(n*(22+rng(10))*mult);
-      tableGrain-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}💰🌾`,'#eebb44');c.state='leave';bought=true;
+      tableGrain-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}ð°ð¾`,'#eebb44');c.state='leave';bought=true;
     } else if(c.type==='meat'&&tableMeat>0){
       const n=Math.min(tableMeat,1+rng(2)),price=Math.floor(n*(20+rng(8))*mult);
-      tableMeat-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}💰🥩`,'#ffdd44');c.state='leave';bought=true;
+      tableMeat-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}ð°ð¥©`,'#ffdd44');c.state='leave';bought=true;
     } else if(c.type==='wood'&&tableWood>0){
       const n=Math.min(tableWood,2+rng(3)),price=Math.floor(n*(12+rng(6))*mult);
-      tableWood-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}💰🪵`,'#ffdd44');c.state='leave';bought=true;
+      tableWood-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}ð°ðªµ`,'#ffdd44');c.state='leave';bought=true;
     }
     if(!bought&&c.wt<=0) c.state='leave';
   } else {
@@ -890,7 +891,7 @@ function updateCustomer(c){
   }
 }
 
-/* ═══ UTILS ═════════════════════════════════════════════ */
+/* âââ UTILS âââââââââââââââââââââââââââââââââââââââââââââ */
 function spawnP(x,y,col,n){for(let i=0;i<n;i++)parts.push({x,y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,life:22+rng(14),mxL:36,col,r:2+Math.random()*3});}
 function ft(wx,wy,text,col){ftexts.push({wx,wy,text,col,life:95,vy:-.55});}
 function showMsg(t){msg=t;msgT=200;}
@@ -898,7 +899,7 @@ function rng(n){return Math.floor(Math.random()*n);}
 function ws(x,y){return[x-camX,y-camY];}
 function rrect(x,y,w2,h2,r){ct.beginPath();ct.moveTo(x+r,y);ct.lineTo(x+w2-r,y);ct.quadraticCurveTo(x+w2,y,x+w2,y+r);ct.lineTo(x+w2,y+h2-r);ct.quadraticCurveTo(x+w2,y+h2,x+w2-r,y+h2);ct.lineTo(x+r,y+h2);ct.quadraticCurveTo(x,y+h2,x,y+h2-r);ct.lineTo(x,y+r);ct.quadraticCurveTo(x,y,x+r,y);ct.closePath();}
 
-/* ═══ UPDATE ═════════════════════════════════════════════ */
+/* âââ UPDATE âââââââââââââââââââââââââââââââââââââââââââââ */
 function update(){
   frameN++;P.animT+=.18;if(P.coinAnim>0)P.coinAnim--;
   let mx=0,my=0;
@@ -913,7 +914,7 @@ function update(){
   const camSpeed=Math.min(.1*dtScale,.4);camX+=(P.wx-CX-camX)*camSpeed;camY+=(P.wy-CY-camY)*camSpeed;
   if(P.inv>0)P.inv--;
   // HP regen near house
-  if(frameN%240===0&&P.hp>0&&P.hp<P.mxHp&&Math.hypot(P.wx-HX,P.wy-HY)<wallR()+60){P.hp=Math.min(P.mxHp,P.hp+1);ft(HX,HY-30,'+1❤','#88ff88');}
+  if(frameN%240===0&&P.hp>0&&P.hp<P.mxHp&&Math.hypot(P.wx-HX,P.wy-HY)<wallR()+60){P.hp=Math.min(P.mxHp,P.hp+1);ft(HX,HY-30,'+1â¤','#88ff88');}
   for(const t of trees)if(t.cd>0)t.cd--;
   if(P.autoHeal){P.healTimer=(P.healTimer||0)+1;if(P.healTimer>=180){P.healTimer=0;if(P.hp<P.mxHp)P.hp=Math.min(P.mxHp,P.hp+3);}}
   updateBlade();tickAutoUpgrade();tickBuildings();updateCompanions();
@@ -939,7 +940,7 @@ function update(){
           // Spread absorbed damage across shield companions randomly
           const sc=shields[rng(shields.length)];
           sc.hp=Math.max(0,sc.hp-absorbed);sc.flash=10;sc.inv=30;
-          spawnP(sc.x,sc.y,'#4488ff',6);ft(sc.x,sc.y-20,`🛡-${absorbed}`,'#88bbff');
+          spawnP(sc.x,sc.y,'#4488ff',6);ft(sc.x,sc.y-20,`ð¡-${absorbed}`,'#88bbff');
         }
         if(dmgToPlayer>0){P.hp=Math.max(0,P.hp-dmgToPlayer);P.inv=35;screenShake=10;SFX.hurt();ft(P.wx,P.wy-22,`-${dmgToPlayer}`,'#ff4444');spawnP(P.wx,P.wy,'#ff4444',4);}
         b.atkCd=b.boss?120:30;
@@ -955,13 +956,13 @@ function update(){
       if(b.boss||Math.hypot(nb_x-HX,nb_y-HY)>=wr){b.x=nb_x;b.y=nb_y;}
     }
   }
-  for(const d of drops){d.age++;if(!d.taken&&Math.hypot(P.wx-d.x,P.wy-d.y)<28){if(d.type==='meat'){P.meat++;d.taken=true;SFX.coin();ft(d.x,d.y,'+🥩','#ffaa66');}else if(d.type==='wood'){P.wood++;d.taken=true;SFX.coin();ft(d.x,d.y,'+木','#ddaa66');}}}
+  for(const d of drops){d.age++;if(!d.taken&&Math.hypot(P.wx-d.x,P.wy-d.y)<28){if(d.type==='meat'){P.meat++;d.taken=true;SFX.coin();ft(d.x,d.y,'+ð¥©','#ffaa66');}else if(d.type==='wood'){P.wood++;d.taken=true;SFX.coin();ft(d.x,d.y,'+æ¨','#ddaa66');}}}
   drops=drops.filter(d=>!d.taken&&d.age<800);
   custTimer--;
   const mkt=BLDGS.market.lv?[1.4,1.8][BLDGS.market.lv-1]:1;
   if(custTimer<=0){custTimer=Math.floor(Math.max(40,210-wave*10)/mkt);if(customers.length<custCap())spawnCustomer();}
   for(const c of customers)updateCustomer(c);customers=customers.filter(c=>!c.done);
-  wTimer++;if(wTimer>=65*60){wTimer=0;wave++;spawnWave(wave);showMsg(`⚔️ 第${wave}波蝦雞來襲！`);}
+  wTimer++;if(wTimer>=65*60){wTimer=0;wave++;spawnWave(wave);showMsg(`âï¸ ç¬¬${wave}æ³¢è¦éä¾è¥²ï¼`);}
   bossTimer++;if(bossTimer>=180*60){bossTimer=0;spawnBoss();}
   for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vx*=.92;p.vy*=.92;p.life--;}
   parts=parts.filter(p=>p.life>0);
@@ -969,9 +970,9 @@ function update(){
   ftexts=ftexts.filter(f=>f.life>0);
 }
 
-/* ══════════════════════════════════════════════════════
+/* ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    DRAW
-══════════════════════════════════════════════════════ */
+ââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 function draw(){
   // B2 Screen shake
   ct.save();
@@ -1024,21 +1025,21 @@ function drawGround(){
         ct.fillStyle='#aa44ff';ct.beginPath();ct.moveTo(sx,sy-42);ct.lineTo(sx-8,sy-28);ct.lineTo(sx+8,sy-28);ct.closePath();ct.fill();
         ct.fillStyle=`rgba(220,180,255,${pulse})`;ct.beginPath();ct.arc(sx,sy-40,5,0,Math.PI*2);ct.fill();
         ct.fillStyle='#fff';ct.font='11px sans-serif';ct.textAlign='center';
-        ct.fillText(sp.type==='gold'?'💰':sp.type==='wood'?'🪵':'🥩',sx,sy-46);
+        ct.fillText(sp.type==='gold'?'ð°':sp.type==='wood'?'ðªµ':'ð¥©',sx,sy-46);
       } else {
         // Unbuilt beacon
         const t=(upgradeTimers[`outpost${OUTPOST_SPOTS.indexOf(sp)}`]||0)/PROX_HOLD;
         const pulse=Math.sin(frameN*.08)*.4;
         ct.fillStyle=`rgba(200,150,255,${.08+pulse*.08})`;ct.beginPath();ct.arc(sx,sy,26,0,Math.PI*2);ct.fill();
         ct.strokeStyle=`rgba(180,100,255,${.4+pulse*.3})`;ct.lineWidth=1.5;ct.setLineDash([5,4]);ct.beginPath();ct.arc(sx,sy,26,0,Math.PI*2);ct.stroke();ct.setLineDash([]);
-        ct.fillStyle='rgba(220,180,255,.8)';ct.font='11px sans-serif';ct.textAlign='center';ct.fillText('✨魔法站 800💰',sx,sy+4);
+        ct.fillStyle='rgba(220,180,255,.8)';ct.font='11px sans-serif';ct.textAlign='center';ct.fillText('â¨é­æ³ç« 800ð°',sx,sy+4);
         if(t>0){ct.strokeStyle='#aa44ff';ct.lineWidth=3;ct.beginPath();ct.arc(sx,sy-34,10,-Math.PI/2,-Math.PI/2+t*Math.PI*2);ct.stroke();}
       }
     }
   }
 }
 
-/* ═══ FENCE ═════════════════════════════════════════════ */
+/* âââ FENCE âââââââââââââââââââââââââââââââââââââââââââââ */
 function drawFence(){
   const[hx,hy]=ws(HX,HY),wr=wallR(),sides=Math.max(8,Math.floor(wr/18));
   ct.fillStyle='rgba(100,200,80,.06)';ct.beginPath();ct.arc(hx,hy,wr,0,Math.PI*2);ct.fill();
@@ -1047,10 +1048,10 @@ function drawFence(){
   ct.fillStyle='#5a2e08';for(let i=0;i<sides;i++){const a=(i/sides)*Math.PI*2;const px=hx+Math.cos(a)*wr,py=hy+Math.sin(a)*wr;ct.fillRect(px-3,py-6,6,12);}
   ct.fillStyle='rgba(58,122,42,.9)';ct.fillRect(hx-22,hy+wr-8,44,14);
   ct.fillStyle='rgba(0,0,0,.5)';rrect(hx-44,hy-wr-22,88,16,4);ct.fill();
-  ct.fillStyle='#ddffaa';ct.font='bold 12px sans-serif';ct.textAlign='center';ct.fillText(`🏡${HOUSES[hLv].name} Lv${hLv}`,hx,hy-wr-9);
+  ct.fillStyle='#ddffaa';ct.font='bold 12px sans-serif';ct.textAlign='center';ct.fillText(`ð¡${HOUSES[hLv].name} Lv${hLv}`,hx,hy-wr-9);
 }
 
-/* ═══ TREE ═══════════════════════════════════════════════ */
+/* âââ TREE âââââââââââââââââââââââââââââââââââââââââââââââ */
 function drawTree(t){
   const[sx,sy]=ws(t.x,t.y);if(sx<-80||sx>W+80||sy<-80||sy>H+80) return;
   const h=t.cd>0,r=t.r;
@@ -1065,7 +1066,7 @@ function drawTree(t){
   }
 }
 
-/* ═══ BUILDINGS ══════════════════════════════════════════ */
+/* âââ BUILDINGS ââââââââââââââââââââââââââââââââââââââââââ */
 function bldgSz(lv){return[38,52,68,84,100][lv-1]||38;}
 function drawAllBuildings(){
   if(BLDGS.rail.lv>0){
@@ -1087,24 +1088,24 @@ function drawAllBuildings(){
       ct.fillStyle='#333';ct.beginPath();ct.arc(csx-5,csy+6,2.8,0,Math.PI*2);ct.fill();ct.beginPath();ct.arc(csx+5,csy+6,2.8,0,Math.PI*2);ct.fill();
     }
   }
-  drawBldg('lumber','#5a3a10','#7a5a20','🪓');
-  drawBldg('meat',  '#7a2a10','#9a4a20','🥩');
-  drawBldg('rail',  '#4a4a44','#6a6a60','🚂');
-  drawBldg('pizza', '#7a4a00','#9a6200','🍕');
-  drawBldg('farm',  '#3a6820','#5a8830','🌾');
+  drawBldg('lumber','#5a3a10','#7a5a20','ðª');
+  drawBldg('meat',  '#7a2a10','#9a4a20','ð¥©');
+  drawBldg('rail',  '#4a4a44','#6a6a60','ð');
+  drawBldg('pizza', '#7a4a00','#9a6200','ð');
+  drawBldg('farm',  '#3a6820','#5a8830','ð¾');
   if(phase2OK()){
-    drawBldg('market','#20507a','#2a6a9a','🏪');
-    drawBldg('mine',  '#504040','#706050','⛏️');
-    drawBldg('inn',   '#5a3060','#7a4a80','🏨');
+    drawBldg('market','#20507a','#2a6a9a','ðª');
+    drawBldg('mine',  '#504040','#706050','âï¸');
+    drawBldg('inn',   '#5a3060','#7a4a80','ð¨');
   }
   if(phase3OK()){
-    drawBldg('forge', '#6a3010','#8a4a20','🔥');
-    drawBldg('store', '#4a3a1a','#6a5a2a','📦');
+    drawBldg('forge', '#6a3010','#8a4a20','ð¥');
+    drawBldg('store', '#4a3a1a','#6a5a2a','ð¦');
   }
   drawHouse();drawAnvil();drawTable();drawRecruitStation();drawBarracks(BARRACKS1,'sword');drawBarracks(BARRACKS2,'shield');
 }
 
-/* ═══ 3D ISO BOX HELPER ══════════════════════════════════ */
+/* âââ 3D ISO BOX HELPER ââââââââââââââââââââââââââââââââââ */
 // Draws a pseudo-isometric 3D box. anchor = bottom-center of front face.
 // w=width, fH=front wall height, tD=top face depth, rW=right side width
 function isoBox(sx,sy,w,fH,tD,rW,topC,frontC,sideC,rimC){
@@ -1149,7 +1150,7 @@ function bldgLabel(sx,sy,text,col){
   ct.fillStyle=col||'#fff';ct.font='bold 12px sans-serif';ct.textAlign='center';ct.fillText(text,sx,sy+5);
 }
 
-/* ═══ PER-BUILDING DRAW FUNCTIONS ═══════════════════════ */
+/* âââ PER-BUILDING DRAW FUNCTIONS âââââââââââââââââââââââ */
 
 function drawBldgPizza(b,sx,sy){
   const lv=b.lv,now=Date.now();
@@ -1177,7 +1178,7 @@ function drawBldgPizza(b,sx,sy){
   }
   // Stacked pizza boxes on ground
   const stacks=Math.min(tablePizza||0,4);
-  for(let i=0;i<stacks;i++){drawBox(sx+22,sy+4-i*5,14,4,'#e8c090',true);ct.fillStyle='#c05830';ct.font='8px sans-serif';ct.textAlign='center';ct.fillText('🍕',sx+29,sy+8-i*5);}
+  for(let i=0;i<stacks;i++){drawBox(sx+22,sy+4-i*5,14,4,'#e8c090',true);ct.fillStyle='#c05830';ct.font='8px sans-serif';ct.textAlign='center';ct.fillText('ð',sx+29,sy+8-i*5);}
   drawSmoke(sx-10,sy-28,'#ccc',2);
 }
 
@@ -1272,7 +1273,7 @@ function drawBldgInn(b,sx,sy){
     ct.fillStyle=`rgba(255,220,100,${glow*.4})`;ct.beginPath();ct.arc(wx+7,sy-21,14,0,Math.PI*2);ct.fill();
   }
   // Sign hanging
-  ct.fillStyle='#7a5020';ct.fillRect(sx-20,sy-46,40,14);ct.fillStyle='#cc9940';ct.font='9px sans-serif';ct.textAlign='center';ct.fillText('旅館',sx,sy-36);
+  ct.fillStyle='#7a5020';ct.fillRect(sx-20,sy-46,40,14);ct.fillStyle='#cc9940';ct.font='9px sans-serif';ct.textAlign='center';ct.fillText('æé¤¨',sx,sy-36);
   drawSmoke(sx-8,sy-50,'#a080c0',lv>=2?3:1);
 }
 
@@ -1301,7 +1302,7 @@ function drawBldgMarket(b,sx,sy){
   for(let i=0;i<6;i++){ct.fillStyle=i%2?'#cc2233':'#fff';ct.fillRect(sx-32+i*11,sy-4,11,10);}
   ct.fillStyle='rgba(0,0,0,.15)';ct.fillRect(sx-32,sy+6,66,3);
   // Goods on display
-  const goods=['🍎','🥕','🧀','🫙'];
+  const goods=['ð','ð¥','ð§','ð«'];
   goods.forEach((g,i)=>{ct.font='12px sans-serif';ct.textAlign='center';ct.fillText(g,sx-20+i*13,sy+2);});
   // Flag pennants
   ct.strokeStyle='#e0d0a0';ct.lineWidth=1;
@@ -1339,7 +1340,7 @@ function drawBldgStore(b,sx,sy){
   ct.fillStyle='#888';ct.beginPath();ct.arc(sx+2,sy+6,4,Math.PI,0);ct.fill();ct.fillRect(sx-2,sy+6,8,6);
 }
 
-/* ═══ GENERIC UNBUILT PLACEHOLDER ═══════════════════════ */
+/* âââ GENERIC UNBUILT PLACEHOLDER âââââââââââââââââââââââ */
 function drawBldgUnbuilt(key,emoji,name,cost,sx,sy){
   const t=(upgradeTimers[key]||0)/PROX_HOLD;
   ct.fillStyle=t>0?`rgba(100,200,100,${.15+t*.25})`:'rgba(80,180,80,.08)';
@@ -1350,11 +1351,11 @@ function drawBldgUnbuilt(key,emoji,name,cost,sx,sy){
   ct.setLineDash([5,4]);ct.strokeStyle='rgba(120,200,255,.3)';ct.lineWidth=1;rrect(sx-32,sy-30,64,50,7);ct.stroke();ct.setLineDash([]);
   ct.globalAlpha=.45;ct.font='24px sans-serif';ct.textAlign='center';ct.fillText(emoji,sx,sy+8);ct.globalAlpha=1;
   ct.fillStyle='rgba(255,255,200,.85)';ct.font='bold 12px sans-serif';ct.textAlign='center';ct.fillText(name,sx,sy+26);
-  ct.fillStyle='rgba(180,255,180,.9)';ct.font='12px sans-serif';ct.fillText(`${cost}💰 建造`,sx,sy-18);
+  ct.fillStyle='rgba(180,255,180,.9)';ct.font='12px sans-serif';ct.fillText(`${cost}ð° å»ºé `,sx,sy-18);
   if(t>0){ct.strokeStyle='#44ff44';ct.lineWidth=3;ct.beginPath();ct.arc(sx,sy-44,12,-Math.PI/2,-Math.PI/2+t*Math.PI*2);ct.stroke();}
 }
 
-/* ═══ MAIN DRAWBLDG DISPATCHER ══════════════════════════ */
+/* âââ MAIN DRAWBLDG DISPATCHER ââââââââââââââââââââââââââ */
 function drawBldg(key,c1,c2,emoji){
   const b=BLDGS[key];const[sx,sy]=ws(b.wx,b.wy);
   if(sx<-140||sx>W+140||sy<-140||sy>H+140) return;
@@ -1369,12 +1370,12 @@ function drawBldg(key,c1,c2,emoji){
   ct.fillStyle='#fff';ct.font='bold 12px sans-serif';ct.textAlign='center';ct.fillText(`${b.name} Lv${b.lv}`,sx,labelY+5);
   if(b.lv<b.maxLv){
     const t=(upgradeTimers[key]||0)/PROX_HOLD,nc=b.costs[b.lv];
-    ct.fillStyle=P.gold>=nc?'rgba(255,220,50,.95)':'rgba(200,180,100,.7)';ct.font='11px sans-serif';ct.textAlign='center';ct.fillText(`Lv${b.lv+1}: ${nc}💰`,sx,sy+38);
+    ct.fillStyle=P.gold>=nc?'rgba(255,220,50,.95)':'rgba(200,180,100,.7)';ct.font='11px sans-serif';ct.textAlign='center';ct.fillText(`Lv${b.lv+1}: ${nc}ð°`,sx,sy+38);
     if(t>0){ct.strokeStyle='#44ff44';ct.lineWidth=3;ct.beginPath();ct.arc(sx,labelY-14,10,-Math.PI/2,-Math.PI/2+t*Math.PI*2);ct.stroke();}
-  } else {ct.fillStyle='#44ff44';ct.font='bold 11px sans-serif';ct.textAlign='center';ct.fillText('✓ MAX',sx,sy+38);}
+  } else {ct.fillStyle='#44ff44';ct.font='bold 11px sans-serif';ct.textAlign='center';ct.fillText('â MAX',sx,sy+38);}
 }
 
-/* ═══ BARRACKS (3D) ════════════════════════════════════ */
+/* âââ BARRACKS (3D) ââââââââââââââââââââââââââââââââââââ */
 function drawBarracks(pos,type){
   const[sx,sy]=ws(pos.wx,pos.wy);
   if(sx<-100||sx>W+100||sy<-100||sy>H+100) return;
@@ -1403,21 +1404,21 @@ function drawBarracks(pos,type){
   ct.fillStyle='#080808';ct.beginPath();ct.arc(sx,sy+12,7,Math.PI,0);ct.fill();ct.fillRect(sx-7,sy+6,14,10);
   ct.strokeStyle=isSword?'#4466ee':'#44ee88';ct.lineWidth=1.5;ct.beginPath();ct.arc(sx,sy+12,7,Math.PI,0);ct.stroke();
   // Weapon rack icon
-  ct.font='15px sans-serif';ct.textAlign='center';ct.fillText(isSword?'⚔️':'🛡️',sx,sy+3);
+  ct.font='15px sans-serif';ct.textAlign='center';ct.fillText(isSword?'âï¸':'ð¡ï¸',sx,sy+3);
   // Label + cost
   const key=isSword?'bar1':'bar2';const t=(upgradeTimers[key]||0)/PROX_HOLD;
   ct.fillStyle='rgba(0,0,0,.75)';rrect(sx-50,sy-76,100,18,4);ct.fill();
   ct.fillStyle='#fff';ct.font='bold 11px sans-serif';ct.textAlign='center';
-  ct.fillText(isSword?'⚔️劍士招兵所':'🛡️盾衛招兵所',sx,sy-62);
+  ct.fillText(isSword?'âï¸åå£«æåµæ':'ð¡ï¸ç¾è¡æåµæ',sx,sy-62);
   const cnt=companions.length,cap=maxCompanions(),cost=(isSword?120:140)+cnt*80;
   if(cnt<cap){
     ct.fillStyle=P.gold>=cost?'#ffee44':'#cc9944';ct.font='11px sans-serif';ct.textAlign='center';
-    ct.fillText(`${cost}💰 (${cnt}/${cap})`,sx,sy+36);
+    ct.fillText(`${cost}ð° (${cnt}/${cap})`,sx,sy+36);
     if(t>0){ct.strokeStyle='#44ff44';ct.lineWidth=2.5;ct.beginPath();ct.arc(sx,sy-82,9,-Math.PI/2,-Math.PI/2+t*Math.PI*2);ct.stroke();}
-  } else {ct.fillStyle='#44ff44';ct.font='11px sans-serif';ct.textAlign='center';ct.fillText(`✓ 滿員(${cap})`,sx,sy+36);}
+  } else {ct.fillStyle='#44ff44';ct.font='11px sans-serif';ct.textAlign='center';ct.fillText(`â æ»¿å¡(${cap})`,sx,sy+36);}
 }
 
-/* ═══ RECRUIT STATION (3D) ════════════════════════════ */
+/* âââ RECRUIT STATION (3D) ââââââââââââââââââââââââââââ */
 function drawRecruitStation(){
   const[sx,sy]=ws(RECRUIT.wx,RECRUIT.wy);
   if(sx<-80||sx>W+80||sy<-80||sy>H+80) return;
@@ -1431,7 +1432,7 @@ function drawRecruitStation(){
   ct.fillStyle='#7a5020';ct.fillRect(sx-20,sy-36,40,16);
   ct.fillStyle='#cc9940';ct.fillRect(sx-19,sy-35,38,14);
   ct.fillStyle='rgba(255,255,255,.15)';ct.fillRect(sx-19,sy-35,20,6);
-  ct.font='12px sans-serif';ct.textAlign='center';ct.fillText('🐱',sx,sy-24);
+  ct.font='12px sans-serif';ct.textAlign='center';ct.fillText('ð±',sx,sy-24);
   // Counter window
   ct.fillStyle='rgba(200,240,255,.3)';ct.fillRect(sx-14,sy-14,28,10);
   ct.strokeStyle='rgba(200,240,255,.5)';ct.lineWidth=1;ct.strokeRect(sx-14,sy-14,28,10);
@@ -1439,16 +1440,16 @@ function drawRecruitStation(){
   for(let i=0;i<3;i++){const a=(now*.002+i*2.1)%(Math.PI*2);ct.fillStyle=`rgba(255,200,100,${pulse*.6})`;ct.beginPath();ct.arc(sx+Math.cos(a)*18,sy-10+Math.sin(a)*10,2.5,0,Math.PI*2);ct.fill();}
   // Label
   ct.fillStyle='rgba(0,0,0,.75)';rrect(sx-46,sy-56,92,18,4);ct.fill();
-  ct.fillStyle='#ffeeaa';ct.font='bold 11px sans-serif';ct.textAlign='center';ct.fillText('🐱 貓咪招募站',sx,sy-42);
+  ct.fillStyle='#ffeeaa';ct.font='bold 11px sans-serif';ct.textAlign='center';ct.fillText('ð± è²åªæåç«',sx,sy-42);
   const catCost=50+workers.length*30,tt=(upgradeTimers['recruit']||0)/PROX_HOLD;
   if(workers.length<maxCats()){
     ct.fillStyle=P.gold>=catCost?'#ffee44':'#cc9944';ct.font='12px sans-serif';ct.textAlign='center';
-    ct.fillText(`${catCost}💰 (${workers.length}/${maxCats()})`,sx,sy+34);
+    ct.fillText(`${catCost}ð° (${workers.length}/${maxCats()})`,sx,sy+34);
     if(tt>0){ct.strokeStyle='#44ff44';ct.lineWidth=3;ct.beginPath();ct.arc(sx,sy-62,10,-Math.PI/2,-Math.PI/2+tt*Math.PI*2);ct.stroke();}
-  } else {ct.fillStyle='#44ff44';ct.font='12px sans-serif';ct.textAlign='center';ct.fillText(`🐱 已滿(${workers.length})`,sx,sy+34);}
+  } else {ct.fillStyle='#44ff44';ct.font='12px sans-serif';ct.textAlign='center';ct.fillText(`ð± å·²æ»¿(${workers.length})`,sx,sy+34);}
 }
 
-/* ═══ HOUSE / CASTLE ════════════════════════════════════ */
+/* âââ HOUSE / CASTLE ââââââââââââââââââââââââââââââââââââ */
 function drawHouse(){
   const[hx,hy]=ws(HX,HY),s=HOUSES[hLv].sz;
   ct.fillStyle='rgba(0,0,0,.16)';ct.beginPath();ct.ellipse(hx+5,hy+s*.55,s*.86,s*.2,0,0,Math.PI*2);ct.fill();
@@ -1471,7 +1472,7 @@ function drawHouse(){
   ct.fillStyle='#fff';ct.font='bold 14px sans-serif';ct.textAlign='center';ct.fillText(HOUSES[hLv].name,hx,hy-s-13);
   if(hLv<HOUSES.length-1){
     const t=(upgradeTimers['house']||0)/PROX_HOLD,nc=HOUSES[hLv+1].cost;
-    ct.fillStyle=P.gold>=nc?'rgba(255,220,50,.9)':'rgba(200,180,80,.6)';ct.font='12px sans-serif';ct.textAlign='center';ct.fillText(`升級: ${nc}💰→${HOUSES[hLv+1].name}`,hx,hy+s*.5+16);
+    ct.fillStyle=P.gold>=nc?'rgba(255,220,50,.9)':'rgba(200,180,80,.6)';ct.font='12px sans-serif';ct.textAlign='center';ct.fillText(`åç´: ${nc}ð°â${HOUSES[hLv+1].name}`,hx,hy+s*.5+16);
     if(t>0){ct.strokeStyle='#44ff44';ct.lineWidth=2.5;ct.beginPath();ct.arc(hx-58,hy-s-15,10,-Math.PI/2,-Math.PI/2+t*Math.PI*2);ct.stroke();}
   }
 }
@@ -1526,15 +1527,15 @@ function drawFlag(x,y,h,wave,col){
   ct.moveTo(x,y-h);ct.lineTo(x+h*.5+Math.sin(wave)*h*.1,y-h+h*.12+Math.sin(wave)*.5);ct.lineTo(x+h*.5+Math.sin(wave+.5)*h*.08,y-h+h*.24+Math.sin(wave+.5)*.5);ct.lineTo(x,y-h+h*.28);ct.closePath();ct.fill();
 }
 
-/* ═══ ANVIL / TABLE ══════════════════════════════════════ */
+/* âââ ANVIL / TABLE ââââââââââââââââââââââââââââââââââââââ */
 function drawAnvil(){
   const[sx,sy]=ws(ANVIL.wx,ANVIL.wy);
   ct.fillStyle='rgba(0,0,0,.14)';ct.beginPath();ct.ellipse(sx+2,sy+22,21,6,0,0,Math.PI*2);ct.fill();
   ct.fillStyle='#555566';ct.fillRect(sx-15,sy+4,30,12);ct.fillStyle='#777788';ct.beginPath();ct.ellipse(sx,sy-2,17,9,0,0,Math.PI*2);ct.fill();ct.fillStyle='#8888aa';ct.beginPath();ct.ellipse(sx-2,sy-4,13,5.5,0,0,Math.PI*2);ct.fill();
   ct.fillStyle='#666677';ct.beginPath();ct.moveTo(sx+17,sy-1);ct.lineTo(sx+27,sy-5);ct.lineTo(sx+27,sy+2);ct.closePath();ct.fill();
-  ct.fillStyle='rgba(0,0,0,.65)';rrect(sx-52,sy-24,104,16,4);ct.fill();ct.fillStyle='#fff';ct.font='bold 13px sans-serif';ct.textAlign='center';ct.fillText('升級爐 [靠近自動升級]',sx,sy-12);
-  if(P.wLv<WEAPS.length){const nc=WCOST[P.wLv],nw=WEAPS[P.wLv],t=(upgradeTimers['anvil']||0)/PROX_HOLD;ct.fillStyle=P.gold>=nc?'#ffee44':'#cc9944';ct.font='13px sans-serif';ct.textAlign='center';ct.fillText(`${nw.emoji}${nw.name} ${nc}💰`,sx,sy+34);if(t>0){ct.strokeStyle='#44ff44';ct.lineWidth=2.5;ct.beginPath();ct.arc(sx,sy-30,10,-Math.PI/2,-Math.PI/2+t*Math.PI*2);ct.stroke();}}
-  else{ct.fillStyle='#44ff44';ct.font='13px sans-serif';ct.textAlign='center';ct.fillText('武器 MAX',sx,sy+34);}
+  ct.fillStyle='rgba(0,0,0,.65)';rrect(sx-52,sy-24,104,16,4);ct.fill();ct.fillStyle='#fff';ct.font='bold 13px sans-serif';ct.textAlign='center';ct.fillText('åç´ç [é è¿èªååç´]',sx,sy-12);
+  if(P.wLv<WEAPS.length){const nc=WCOST[P.wLv],nw=WEAPS[P.wLv],t=(upgradeTimers['anvil']||0)/PROX_HOLD;ct.fillStyle=P.gold>=nc?'#ffee44':'#cc9944';ct.font='13px sans-serif';ct.textAlign='center';ct.fillText(`${nw.emoji}${nw.name} ${nc}ð°`,sx,sy+34);if(t>0){ct.strokeStyle='#44ff44';ct.lineWidth=2.5;ct.beginPath();ct.arc(sx,sy-30,10,-Math.PI/2,-Math.PI/2+t*Math.PI*2);ct.stroke();}}
+  else{ct.fillStyle='#44ff44';ct.font='13px sans-serif';ct.textAlign='center';ct.fillText('æ­¦å¨ MAX',sx,sy+34);}
 }
 function drawTable(){
   const[sx,sy]=ws(TABLE.wx,TABLE.wy);
@@ -1544,19 +1545,19 @@ function drawTable(){
   let xo=-18;
   if(tableWood>0){for(let i=0;i<Math.min(tableWood,5);i++){ct.fillStyle=i%2?'#7a4422':'#9a6633';ct.fillRect(sx+xo+i*4,sy-17,3,6);}ct.fillStyle='#eebb77';ct.font='10px sans-serif';ct.textAlign='center';ct.fillText(tableWood,sx+xo+8,sy-20);}
   xo=2;if(tableMeat>0){ct.fillStyle='#cc4433';ct.fillRect(sx+xo,sy-16,12,9);ct.fillStyle='#ee5544';ct.fillRect(sx+xo+1,sy-15,9,6);ct.fillStyle='#eebb77';ct.font='10px sans-serif';ct.textAlign='center';ct.fillText(tableMeat,sx+xo+6,sy-20);}
-  if(tablePizza>0){ct.font='12px sans-serif';ct.textAlign='center';ct.fillText('🍕',sx+22,sy-4);}
-  if(tableGrain>0){ct.font='12px sans-serif';ct.textAlign='center';ct.fillText('🌾',sx-20,sy-4);}
-  ct.fillStyle='rgba(0,0,0,.65)';rrect(sx-42,sy-30,84,16,4);ct.fill();ct.fillStyle='#fff';ct.font='bold 13px sans-serif';ct.textAlign='center';ct.fillText('交易桌',sx,sy-18);
+  if(tablePizza>0){ct.font='12px sans-serif';ct.textAlign='center';ct.fillText('ð',sx+22,sy-4);}
+  if(tableGrain>0){ct.font='12px sans-serif';ct.textAlign='center';ct.fillText('ð¾',sx-20,sy-4);}
+  ct.fillStyle='rgba(0,0,0,.65)';rrect(sx-42,sy-30,84,16,4);ct.fill();ct.fillStyle='#fff';ct.font='bold 13px sans-serif';ct.textAlign='center';ct.fillText('äº¤ææ¡',sx,sy-18);
   const waiting=customers.filter(c=>c.state==='wait');
   waiting.forEach((c)=>{
     const[cx2,cy2]=ws(c.x,c.y);
     ct.fillStyle='rgba(255,255,255,.9)';ct.strokeStyle='#aaa';ct.lineWidth=1;rrect(cx2-24,cy2-44,48,24,5);ct.fill();ct.stroke();
     ct.fillStyle='#333';ct.font='15px sans-serif';ct.textAlign='center';
-    ct.fillText(c.type==='pizza'?'💰🍕':c.type==='grain'?'💰🌾':c.type==='meat'?'💰🥩':'💰🪵',cx2,cy2-25);
+    ct.fillText(c.type==='pizza'?'ð°ð':c.type==='grain'?'ð°ð¾':c.type==='meat'?'ð°ð¥©':'ð°ðªµ',cx2,cy2-25);
   });
 }
 
-/* ═══ BLADE ═════════════════════════════════════════════ */
+/* âââ BLADE âââââââââââââââââââââââââââââââââââââââââââââ */
 function drawBlade(){
   const w=WEAPS[P.wLv-1],R=w.r;
   ct.save();ct.translate(CX,CY);
@@ -1572,7 +1573,7 @@ function drawBlade(){
   ct.restore();
 }
 
-/* ═══ SHRIMP-CHICKEN ENEMY ══════════════════════════════ */
+/* âââ SHRIMP-CHICKEN ENEMY ââââââââââââââââââââââââââââââ */
 function drawShrimpChicken(b){
   const[sx,sy]=ws(b.x,b.y);if(sx<-90||sx>W+90||sy<-90||sy>H+90) return;
   const sz=b.sz;ct.save();ct.translate(sx,sy);
@@ -1669,11 +1670,11 @@ function drawShrimpChicken(b){
     ct.fillStyle='#220000';ct.fillRect(sx-bw/2,sy-sz-22,bw,7);
     ct.fillStyle=b.boss?'#ff6600':b.hp/b.mxHp>.5?'#ff4444':'#ff0000';
     ct.fillRect(sx-bw/2,sy-sz-22,bw*(b.hp/b.mxHp),7);
-    if(b.boss){ct.fillStyle='#fff';ct.font='bold 12px sans-serif';ct.textAlign='center';ct.fillText('🍤 BOSS',sx,sy-sz-26);}
+    if(b.boss){ct.fillStyle='#fff';ct.font='bold 12px sans-serif';ct.textAlign='center';ct.fillText('ð¤ BOSS',sx,sy-sz-26);}
   }
 }
 
-/* ═══ ANIME GIRL PLAYER ══════════════════════════════════ */
+/* âââ ANIME GIRL PLAYER ââââââââââââââââââââââââââââââââââ */
 function drawPlayer(){
   if(P.inv>0&&Math.floor(P.inv/4)%2===0) return;
   const lg=P.moving?Math.sin(P.animT*3)*5:0;
@@ -1691,7 +1692,7 @@ function drawPlayer(){
     for(let i=0;i<logRows;i++){const row=Math.floor(i/3),col=i%3;ct.fillStyle=i%3===0?'#6a3810':i%3===1?'#8a4820':'#7a4018';const lx=bx+col*(stackW/3)+.5;const ly=by-logH*(row+1)*1.1;ct.fillRect(lx,ly,stackW/3-1,logH);ct.fillStyle='rgba(180,100,50,.35)';ct.beginPath();ct.arc(lx,ly+logH/2,logH*.55,0,Math.PI*2);ct.fill();}
     ct.strokeStyle='#553311';ct.lineWidth=1.8;ct.beginPath();ct.moveTo(bx-1,by-totalH*.3);ct.lineTo(-6,by-totalH*.3);ct.stroke();ct.beginPath();ct.moveTo(bx-1,by-totalH*.7);ct.lineTo(-6,by-totalH*.7);ct.stroke();
     ct.fillStyle='rgba(0,0,0,.75)';rrect(bx-2,by-totalH-20,stackW+4,18,4);ct.fill();
-    ct.fillStyle='#ffdd88';ct.font=`bold ${Math.min(15,11+Math.floor(P.wood/8))}px sans-serif`;ct.textAlign='center';ct.fillText(`🪵${P.wood}`,bx+stackW*.5,by-totalH-5);
+    ct.fillStyle='#ffdd88';ct.font=`bold ${Math.min(15,11+Math.floor(P.wood/8))}px sans-serif`;ct.textAlign='center';ct.fillText(`ðªµ${P.wood}`,bx+stackW*.5,by-totalH-5);
   }
   // Meat stack (right)
   if(P.meat>0){
@@ -1699,16 +1700,16 @@ function drawPlayer(){
     ct.fillStyle='#5a2808';ct.fillRect(bx-1,by-totalH,mW*2+2,totalH);
     for(let i=0;i<rows;i++){const row=Math.floor(i/2),col=i%2;ct.fillStyle=i%3===0?'#cc3322':i%3===1?'#aa2211':'#dd4433';const mx2=bx+col*mW,my=by-mH*(row+1)*1.05;ct.fillRect(mx2,my,mW-1,mH-1);ct.fillStyle='rgba(255,150,130,.3)';ct.fillRect(mx2+1,my+1,mW-3,mH-3);}
     ct.fillStyle='rgba(0,0,0,.75)';rrect(bx-1,by-totalH-20,mW*2+2,18,4);ct.fill();
-    ct.fillStyle='#ffbb88';ct.font='bold 12px sans-serif';ct.textAlign='center';ct.fillText(`🥩${P.meat}`,bx+mW,by-totalH-5);
+    ct.fillStyle='#ffbb88';ct.font='bold 12px sans-serif';ct.textAlign='center';ct.fillText(`ð¥©${P.meat}`,bx+mW,by-totalH-5);
   }
   // Coins
   if(P.gold>50||P.coinAnim>0){
     const coinShow=Math.min(Math.floor(P.gold/80)+1,6);
     for(let i=0;i<coinShow;i++){const cx2=-8+i*6,cy2=3;const jitter=P.coinAnim>0?Math.sin(frameN*.5+i)*.8:0;ct.fillStyle='#ddaa00';ct.beginPath();ct.ellipse(cx2,cy2+jitter,4,3,0,0,Math.PI*2);ct.fill();ct.fillStyle='#ffdd22';ct.beginPath();ct.ellipse(cx2-1,cy2-1+jitter,2.5,2,0,0,Math.PI*2);ct.fill();}
-    if(P.coinAnim>0){ct.fillStyle='rgba(255,220,0,.6)';ct.font='bold 11px sans-serif';ct.textAlign='center';ct.fillText('+💰',0,-40);}
+    if(P.coinAnim>0){ct.fillStyle='rgba(255,220,0,.6)';ct.font='bold 11px sans-serif';ct.textAlign='center';ct.fillText('+ð°',0,-40);}
   }
 
-  // ── BLUE WITCH PLAYER ───────────────────────────────
+  // ââ BLUE WITCH PLAYER âââââââââââââââââââââââââââââââ
 
   // Magic aura glow
   ct.fillStyle=`rgba(60,100,255,${pulse*.12})`;ct.beginPath();ct.arc(0,-6,24,0,Math.PI*2);ct.fill();
@@ -1783,7 +1784,7 @@ function drawPlayer(){
   for(let i=0;i<4;i++){const sa=(now*.004+i*1.57)%(Math.PI*2);ct.fillStyle=`rgba(150,200,255,${.6+Math.sin(now*.005+i)*.3})`;ct.beginPath();ct.arc(Math.cos(sa)*10,(-42)+Math.sin(sa)*7,1.2,0,Math.PI*2);ct.fill();}
   ct.restore();
 
-  // ── HEAD ────────────────────────────────────────────
+  // ââ HEAD ââââââââââââââââââââââââââââââââââââââââââââ
 
   // Long blue-silver back hair
   ct.fillStyle='#5577cc';ct.beginPath();ct.ellipse(0,-22,12,13,0,0,Math.PI*2);ct.fill();
@@ -1795,7 +1796,7 @@ function drawPlayer(){
   ct.beginPath();ct.moveTo(-10,-28);ct.quadraticCurveTo(-14,-6,-10,14);ct.lineTo(-6,12);ct.quadraticCurveTo(-10,-4,-6,-26);ct.closePath();ct.fill();
   ct.beginPath();ct.moveTo(10,-28);ct.quadraticCurveTo(14,-6,10,14);ct.lineTo(6,12);ct.quadraticCurveTo(10,-4,6,-26);ct.closePath();ct.fill();
 
-  // Witch hat — LARGE, dark navy
+  // Witch hat â LARGE, dark navy
   // Brim (wide)
   ct.fillStyle='#060618';ct.beginPath();ct.ellipse(0,-30,20,5.5,0,0,Math.PI*2);ct.fill();
   ct.strokeStyle='#2233aa';ct.lineWidth=1.5;ct.beginPath();ct.ellipse(0,-30,20,5.5,0,0,Math.PI*2);ct.stroke();
@@ -1812,8 +1813,8 @@ function drawPlayer(){
   for(let i=0;i<5;i++){const fa=(i/5)*Math.PI*2;ct.fillStyle=['#ff88bb','#ff66aa','#ffaacc','#ff99bb','#ee77aa'][i];ct.beginPath();ct.ellipse(-8+Math.cos(fa)*4,-39+Math.sin(fa)*3.5,2.5,2,fa,0,Math.PI*2);ct.fill();}
   ct.fillStyle='#ffcc44';ct.beginPath();ct.arc(-8,-39,2,0,Math.PI*2);ct.fill();
   // Star ornament (golden)
-  ct.fillStyle='rgba(255,220,60,.9)';ct.font='9px sans-serif';ct.textAlign='center';ct.fillText('✦',3,-54);
-  ct.fillStyle='rgba(200,180,255,.7)';ct.font='8px sans-serif';ct.fillText('✦',8,-48);
+  ct.fillStyle='rgba(255,220,60,.9)';ct.font='9px sans-serif';ct.textAlign='center';ct.fillText('â¦',3,-54);
+  ct.fillStyle='rgba(200,180,255,.7)';ct.font='8px sans-serif';ct.fillText('â¦',8,-48);
 
   // Face (cool pale, slightly lavender)
   ct.fillStyle='#f2eeff';ct.beginPath();ct.arc(0,-22,9,0,Math.PI*2);ct.fill();
@@ -1862,7 +1863,7 @@ function drawPlayer(){
   ct.restore();
 }
 
-/* ═══ CUSTOMER / DROP ════════════════════════════════════ */
+/* âââ CUSTOMER / DROP ââââââââââââââââââââââââââââââââââââ */
 function drawCust(c){
   const[sx,sy]=ws(c.x,c.y);if(sx<-30||sx>W+30||sy<-30||sy>H+30) return;
   const b=c.state==='wait'?Math.sin((c.pulse||0)*.5)*.5:0;
@@ -1877,42 +1878,42 @@ function drawDrop(d){
   const p2=Math.sin(d.age*.12)*2;
   ct.fillStyle=d.type==='wood'?'#7a4422':'#cc4433';ct.fillRect(sx-6-p2,sy-5-p2,12+p2*2,10+p2*2);
   ct.fillStyle=d.type==='wood'?'#9a6633':'#ee5544';ct.fillRect(sx-4-p2,sy-3-p2,8+p2*2,6+p2*2);
-  ct.font='10px sans-serif';ct.textAlign='center';ct.fillText(d.type==='wood'?'🪵':'🥩',sx,sy+3);
+  ct.font='10px sans-serif';ct.textAlign='center';ct.fillText(d.type==='wood'?'ðªµ':'ð¥©',sx,sy+3);
 }
 
-/* ═══ HUD ════════════════════════════════════════════════ */
+/* âââ HUD ââââââââââââââââââââââââââââââââââââââââââââââââ */
 function drawHUD(){
   const w=WEAPS[P.wLv-1];
   ct.fillStyle='rgba(0,0,0,.72)';rrect(10,10,210,23,4);ct.fill();
   ct.fillStyle=P.hp>40?'#cc3333':'#ff1111';rrect(10,10,210*(P.hp/P.mxHp),23,4);ct.fill();
   ct.strokeStyle='#ff6644';ct.lineWidth=1.5;rrect(10,10,210,23,4);ct.stroke();
-  ct.fillStyle='#fff';ct.font='bold 14px sans-serif';ct.textAlign='left';ct.fillText(`❤ ${P.hp}/${P.mxHp}`,14,28);
+  ct.fillStyle='#fff';ct.font='bold 14px sans-serif';ct.textAlign='left';ct.fillText(`â¤ ${P.hp}/${P.mxHp}`,14,28);
   ct.fillStyle='rgba(0,0,0,.72)';rrect(10,37,160,21,4);ct.fill();
   ct.fillStyle='#ccaa00';rrect(10,37,Math.min(160,160*(P.gold/3000)),21,4);ct.fill();
   ct.strokeStyle='#ffcc22';ct.lineWidth=1;rrect(10,37,160,21,4);ct.stroke();
-  ct.fillStyle='#fff';ct.font='bold 14px sans-serif';ct.textAlign='left';ct.fillText(`💰 ${P.gold}`,14,53);
+  ct.fillStyle='#fff';ct.font='bold 14px sans-serif';ct.textAlign='left';ct.fillText(`ð° ${P.gold}`,14,53);
   ct.fillStyle='rgba(0,0,0,.72)';rrect(10,62,240,80,4);ct.fill();ct.strokeStyle='#556677';ct.lineWidth=1;rrect(10,62,240,80,4);ct.stroke();
   ct.fillStyle='#fff';ct.font='14px sans-serif';ct.textAlign='left';
-  ct.fillText(`身: 🪵${P.wood}  🥩${P.meat}  🌾${P.grain}  🍕${P.pizza}`,14,80);
-  ct.fillText(`桌: 木${tableWood} 🥩${tableMeat} 🌾${tableGrain}`,14,98);
-  ct.fillText(`   🍕${tablePizza}  波${wave}  🐱${workers.length}/${maxCats()}`,14,116);
+  ct.fillText(`èº«: ðªµ${P.wood}  ð¥©${P.meat}  ð¾${P.grain}  ð${P.pizza}`,14,80);
+  ct.fillText(`æ¡: æ¨${tableWood} ð¥©${tableMeat} ð¾${tableGrain}`,14,98);
+  ct.fillText(`   ð${tablePizza}  æ³¢${wave}  ð±${workers.length}/${maxCats()}`,14,116);
   const outN=OUTPOST_SPOTS.filter(s=>s.active).length;
-  if(hLv>=6)ct.fillText(`✨魔法站: ${outN}/${OUTPOST_SPOTS.length}`,14,134);
+  if(hLv>=6)ct.fillText(`â¨é­æ³ç«: ${outN}/${OUTPOST_SPOTS.length}`,14,134);
   ct.fillStyle='rgba(0,0,0,.72)';rrect(W-168,10,158,46,4);ct.fill();ct.strokeStyle=w.col;ct.lineWidth=1.5;rrect(W-168,10,158,46,4);ct.stroke();
   ct.fillStyle=w.col;ct.font='bold 15px sans-serif';ct.textAlign='right';ct.fillText(`${w.emoji} ${w.name}`,W-14,30);
-  ct.fillStyle='#ccc';ct.font='13px sans-serif';ct.fillText(`傷${Math.round(w.bAtk*wDmgMult())} 範${w.r}`,W-14,49);
+  ct.fillStyle='#ccc';ct.font='13px sans-serif';ct.fillText(`å·${Math.round(w.bAtk*wDmgMult())} ç¯${w.r}`,W-14,49);
   ct.fillStyle='rgba(0,0,0,.72)';rrect(W-158,60,148,46,4);ct.fill();
-  ct.fillStyle='#ffaa44';ct.font='14px sans-serif';ct.textAlign='right';ct.fillText(`第${wave}波 下波${Math.ceil((65*60-wTimer)/60)}s`,W-14,78);
-  ct.fillStyle='#ff8844';ct.fillText(`🍤BOSS ${Math.ceil((180*60-bossTimer)/60)}s`,W-14,99);
+  ct.fillStyle='#ffaa44';ct.font='14px sans-serif';ct.textAlign='right';ct.fillText(`ç¬¬${wave}æ³¢ ä¸æ³¢${Math.ceil((65*60-wTimer)/60)}s`,W-14,78);
+  ct.fillStyle='#ff8844';ct.fillText(`ð¤BOSS ${Math.ceil((180*60-bossTimer)/60)}s`,W-14,99);
   const ptMin=Math.floor(playTime/3600),ptSec=Math.floor(playTime/60)%60;
   ct.fillStyle='rgba(180,220,255,.7)';ct.font='12px sans-serif';ct.textAlign='right';
-  ct.fillText(`⏱${ptMin}:${ptSec<10?'0':''}${ptSec}`,W-14,117);
+  ct.fillText(`â±${ptMin}:${ptSec<10?'0':''}${ptSec}`,W-14,117);
   const wCnt=customers.filter(c=>c.state==='wait').length;
-  if(wCnt>0){ct.fillStyle='rgba(0,0,0,.6)';rrect(10,146,200,20,4);ct.fill();ct.fillStyle='#aaffaa';ct.font='13px sans-serif';ct.textAlign='left';ct.fillText(`👥 排隊: ${wCnt}/${custCap()}人`,14,161);}
+  if(wCnt>0){ct.fillStyle='rgba(0,0,0,.6)';rrect(10,146,200,20,4);ct.fill();ct.fillStyle='#aaffaa';ct.font='13px sans-serif';ct.textAlign='left';ct.fillText(`ð¥ æé: ${wCnt}/${custCap()}äºº`,14,161);}
   if(hLv>0){ct.fillStyle='rgba(0,0,0,.55)';rrect(10,170,200,20,4);ct.fill();ct.fillStyle='#aaffaa';ct.font='12px sans-serif';ct.textAlign='left';ct.fillText(HOUSES[hLv].bonus,14,185);}
-  if(!phase2OK()){ct.fillStyle='rgba(0,0,0,.5)';rrect(10,H-42,240,30,4);ct.fill();ct.fillStyle='rgba(150,220,150,.8)';ct.font='11px sans-serif';ct.textAlign='left';ct.fillText('升級全部5棟建築→解鎖市集/礦坑/旅館',14,H-22);}
-  else if(!phase3OK()){ct.fillStyle='rgba(0,0,0,.5)';rrect(10,H-42,240,30,4);ct.fill();ct.fillStyle='rgba(150,220,150,.8)';ct.font='11px sans-serif';ct.textAlign='left';ct.fillText('升級至磚造房→解鎖鑄造坊/倉庫',14,H-22);}
-  if(totalDeath>0){ct.fillStyle='rgba(255,100,100,.4)';ct.font='11px sans-serif';ct.textAlign='left';ct.fillText(`💀×${totalDeath}`,W-50,H-8);}
+  if(!phase2OK()){ct.fillStyle='rgba(0,0,0,.5)';rrect(10,H-42,240,30,4);ct.fill();ct.fillStyle='rgba(150,220,150,.8)';ct.font='11px sans-serif';ct.textAlign='left';ct.fillText('åç´å¨é¨5æ£å»ºç¯âè§£éå¸é/ç¤¦å/æé¤¨',14,H-22);}
+  else if(!phase3OK()){ct.fillStyle='rgba(0,0,0,.5)';rrect(10,H-42,240,30,4);ct.fill();ct.fillStyle='rgba(150,220,150,.8)';ct.font='11px sans-serif';ct.textAlign='left';ct.fillText('åç´è³ç£é æ¿âè§£ééé å/ååº«',14,H-22);}
+  if(totalDeath>0){ct.fillStyle='rgba(255,100,100,.4)';ct.font='11px sans-serif';ct.textAlign='left';ct.fillText(`ðÃ${totalDeath}`,W-50,H-8);}
   // Companion HP bars (bottom right)
   if(companions.length>0){
     const bw=110,bh=14,bx=W-bw-10;
@@ -1922,16 +1923,16 @@ function drawHUD(){
       ct.fillStyle=c.type==='sword'?'#3355cc':'#229955';rrect(bx,by,bw*(c.hp/c.mxHp),bh,3);ct.fill();
       ct.fillStyle='rgba(255,255,255,.15)';ct.fillRect(bx,by,bw*.4,bh*.5);
       ct.fillStyle='#fff';ct.font='bold 9px sans-serif';ct.textAlign='left';
-      ct.fillText(`${c.type==='sword'?'⚔️':'🛡️'}${c.name} ${c.hp}/${c.mxHp}`,bx+4,by+bh-3);
+      ct.fillText(`${c.type==='sword'?'âï¸':'ð¡ï¸'}${c.name} ${c.hp}/${c.mxHp}`,bx+4,by+bh-3);
     });
   }
-  ct.fillStyle='rgba(255,255,255,.2)';ct.font='12px sans-serif';ct.textAlign='center';ct.fillText('WASD移動｜靠近建築升級｜🐱招募站招貓',W/2,H-8);
+  ct.fillStyle='rgba(255,255,255,.2)';ct.font='12px sans-serif';ct.textAlign='center';ct.fillText('WASDç§»åï½é è¿å»ºç¯åç´ï½ð±æåç«æè²',W/2,H-8);
   if(msgT>0){ct.globalAlpha=Math.min(1,msgT/20);ct.fillStyle='rgba(0,0,0,.78)';rrect(W/2-155,H/2-120,310,26,6);ct.fill();ct.fillStyle='#ffee44';ct.font='bold 15px sans-serif';ct.textAlign='center';ct.fillText(msg,W/2,H/2-101);ct.globalAlpha=1;}
   if(joy.on){const jx=joy.bx,jy=joy.by;ct.fillStyle='rgba(255,255,255,.08)';ct.beginPath();ct.arc(jx,jy,60,0,Math.PI*2);ct.fill();ct.strokeStyle='rgba(255,255,255,.25)';ct.lineWidth=2.5;ct.beginPath();ct.arc(jx,jy,60,0,Math.PI*2);ct.stroke();ct.fillStyle='rgba(255,255,255,.32)';ct.beginPath();ct.arc(jx+Math.min(joy.dx,50),jy+Math.min(joy.dy,50),26,0,Math.PI*2);ct.fill();}
   if(msgT>0)msgT--;
 }
 
-/* ═══ TITLE SCREEN ═══════════════════════════════════════ */
+/* âââ TITLE SCREEN âââââââââââââââââââââââââââââââââââââââ */
 function drawTitle(){
   titleAnimT+=0.02;
   const grd=ct.createRadialGradient(CX,CY*.6,0,CX,CY,H*.9);
@@ -1951,10 +1952,10 @@ function drawTitle(){
   ct.save();
   ct.shadowColor='#4488ff';ct.shadowBlur=30;
   ct.fillStyle='#ffffff';ct.font=`bold ${Math.floor(W*.13)}px sans-serif`;ct.textAlign='center';
-  ct.fillText('魔法商人',CX,H*.22);
+  ct.fillText('é­æ³åäºº',CX,H*.22);
   ct.shadowBlur=0;
   ct.fillStyle='rgba(180,210,255,.85)';ct.font=`${Math.floor(W*.038)}px sans-serif`;
-  ct.fillText('Magic Merchant — 生存經營',CX,H*.3);
+  ct.fillText('Magic Merchant â çå­ç¶ç',CX,H*.3);
   ct.restore();
   // Animated witch
   const wx=CX,wy=H*.58+Math.sin(titleAnimT*2.2)*7;
@@ -1993,36 +1994,36 @@ function drawTitle(){
   rrect(CX-100,H*.76,200,50,25);ct.fill();
   ct.strokeStyle='rgba(120,255,150,.8)';ct.lineWidth=2.5;rrect(CX-100,H*.76,200,50,25);ct.stroke();
   ct.fillStyle='#fff';ct.font=`bold ${Math.floor(W*.047)}px sans-serif`;ct.textAlign='center';
-  ct.fillText('▶  點擊開始',CX,H*.76+34);
+  ct.fillText('â¶  é»æéå§',CX,H*.76+34);
   const sv=localStorage.getItem('mm_save');
-  if(sv){ct.fillStyle='rgba(150,255,150,.7)';ct.font=`${Math.floor(W*.028)}px sans-serif`;ct.fillText('✓ 找到存檔 — 將自動讀取',CX,H*.88);}
+  if(sv){ct.fillStyle='rgba(150,255,150,.7)';ct.font=`${Math.floor(W*.028)}px sans-serif`;ct.fillText('â æ¾å°å­æª â å°èªåè®å',CX,H*.88);}
   ct.fillStyle='rgba(255,255,255,.3)';ct.font=`${Math.floor(W*.025)}px sans-serif`;
   ct.fillText('v0.5',CX,H-.015*H);
 }
 
-/* ═══ DEATH / GAME OVER SCREEN ══════════════════════════ */
+/* âââ DEATH / GAME OVER SCREEN ââââââââââââââââââââââââââ */
 function drawDead(){
   ct.fillStyle='rgba(0,0,0,.82)';ct.fillRect(0,0,W,H);
   ct.shadowColor='#ff2200';ct.shadowBlur=25;
   ct.fillStyle='#ff5544';ct.font=`bold ${Math.floor(W*.1)}px sans-serif`;ct.textAlign='center';
-  ct.fillText('\u{1F480} 倒下了',CX,H*.25);
+  ct.fillText('\u{1F480} åä¸äº',CX,H*.25);
   ct.shadowBlur=0;
   ct.fillStyle='rgba(255,255,255,.9)';ct.font=`${Math.floor(W*.042)}px sans-serif`;
   const mins=Math.floor(deathTime/60),secs=deathTime%60;
-  ct.fillText(`第 ${deathWave} 波  |  擊殺 ${deathKills} 隻`,CX,H*.38);
-  ct.fillText(`遊玩時間 ${mins}分${secs<10?'0':''}${secs}秒`,CX,H*.46);
+  ct.fillText(`ç¬¬ ${deathWave} æ³¢  |  ææ®º ${deathKills} é»`,CX,H*.38);
+  ct.fillText(`éç©æé ${mins}å${secs<10?'0':''}${secs}ç§`,CX,H*.46);
   ct.strokeStyle='rgba(255,80,80,.4)';ct.lineWidth=1;ct.beginPath();ct.moveTo(CX-120,H*.52);ct.lineTo(CX+120,H*.52);ct.stroke();
   ct.fillStyle='rgba(255,200,100,.75)';ct.font=`${Math.floor(W*.032)}px sans-serif`;
-  ct.fillText('存檔已保留 — 建築不會消失',CX,H*.57);
+  ct.fillText('å­æªå·²ä¿ç â å»ºç¯ä¸ææ¶å¤±',CX,H*.57);
   const pulse=.72+Math.sin(Date.now()*.003)*.28;
   ct.fillStyle=`rgba(50,100,220,${pulse})`;
   rrect(CX-100,H*.64,200,52,26);ct.fill();
   ct.strokeStyle='rgba(140,180,255,.8)';ct.lineWidth=2.5;rrect(CX-100,H*.64,200,52,26);ct.stroke();
   ct.fillStyle='#fff';ct.font=`bold ${Math.floor(W*.047)}px sans-serif`;ct.textAlign='center';
-  ct.fillText('\u21BA  再玩一次',CX,H*.64+36);
+  ct.fillText('\u21BA  åç©ä¸æ¬¡',CX,H*.64+36);
 }
 
-/* ═══ TUTORIAL HINTS ════════════════════════════════════ */
+/* âââ TUTORIAL HINTS ââââââââââââââââââââââââââââââââââââ */
 function drawTutorial(){
   if(tutorialTimer>60*60)return;
   tutorialTimer++;
@@ -2032,18 +2033,18 @@ function drawTutorial(){
   ct.fillStyle='rgba(0,0,0,.55)';ct.font=`bold ${Math.floor(W*.035)}px sans-serif`;ct.textAlign='center';
   if(t<20*60){
     rrect(CX-130,H*.86-22,260,38,8);ct.fill();
-    ct.fillStyle='#ffffaa';ct.fillText('\u261E 拖曳左側螢幕移動 / WASD',CX,H*.86+8);
+    ct.fillStyle='#ffffaa';ct.fillText('\u261E ææ³å·¦å´è¢å¹ç§»å / WASD',CX,H*.86+8);
   } else if(t<40*60){
     rrect(CX-120,H*.86-22,240,38,8);ct.fill();
-    ct.fillStyle='#ffddaa';ct.fillText('\u2694\uFE0F 靠近怪物自動攻擊！',CX,H*.86+8);
+    ct.fillStyle='#ffddaa';ct.fillText('\u2694\uFE0F é è¿æªç©èªåæ»æï¼',CX,H*.86+8);
   } else {
     rrect(CX-130,H*.86-22,260,38,8);ct.fill();
-    ct.fillStyle='#aaffaa';ct.fillText('\u{1F3E0} 靠近建築自動升級！',CX,H*.86+8);
+    ct.fillStyle='#aaffaa';ct.fillText('\u{1F3E0} é è¿å»ºç¯èªååç´ï¼',CX,H*.86+8);
   }
   ct.globalAlpha=1;
 }
 
-/* ═══ GAME LOOP ══════════════════════════════════════════ */
+/* âââ GAME LOOP ââââââââââââââââââââââââââââââââââââââââââ */
 function loop(ts){
   if(lastTime>0){const dt=ts-lastTime;dtScale=Math.min(Math.max(dt/16.67,0.5),5);}
   lastTime=ts;
@@ -2057,7 +2058,7 @@ function loop(ts){
   requestAnimationFrame(loop);
 }
 
-/* ═══ START/CLICK HANDLERS ═══════════════════════════════ */
+/* âââ START/CLICK HANDLERS âââââââââââââââââââââââââââââââ */
 function handleStart(ex,ey){
   if(gameState==='title'){
     SFX.start();
@@ -2095,4 +2096,4 @@ cv.addEventListener('touchend',e=>{
 requestAnimationFrame(loop);
 </script>
 </body>
-</html>
+  </html>
