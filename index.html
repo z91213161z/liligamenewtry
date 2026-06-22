@@ -3086,7 +3086,7 @@ function drawTitle() {
   const grd = ct.createRadialGradient(CX, CY * .6, 0, CX, CY, H * .9);
   grd.addColorStop(0, '#0e1a3a'); grd.addColorStop(1, '#020510');
   ct.fillStyle = grd; ct.fillRect(0, 0, W, H);
-  for (let i = 0; i80; i++) {
+  for (let i = 0; i < 80; i++) {
     const sx = ((i * 137.5 + 23) % W);
     const sy = ((i * 97.3 + 11) % (H * .55));
     ct.fillStyle = `rgba(255,255,255,${.2 + Math.sin(titleAnimT * 1.5 + i) * .25})`;
