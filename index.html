@@ -1918,16 +1918,10 @@ function drawTitle(){
   ct.save();  
   ct.shadowColor='#4488ff';ct.shadowBlur=30;  
   ct.fillStyle='#ffffff';ct.font=`bold ${Math.floor(W*.13)}px sans-serif`;ct.textAlign='center';  
-  
-  // 🔽 1. 遊戲大標題 (你可以把 Magic Merchant 改成你要的)
   ct.fillText('Magic Merchant',CX,H*.22);  
-  
   ct.shadowBlur=0;  
   ct.fillStyle='rgba(180,210,255,.85)';ct.font=`${Math.floor(W*.038)}px sans-serif`;  
-  
-  // 🔽 2. 遊戲副標題 (你可以把 Survival Tycoon 改成你要的)
   ct.fillText('Survival Tycoon',CX,H*.3);  
-  
   ct.restore();  
   const wx=CX,wy=H*.58+Math.sin(titleAnimT*2.2)*7;  
   ct.save();ct.translate(wx,wy);  
@@ -1964,21 +1958,13 @@ function drawTitle(){
   rrect(CX-100,H*.76,200,50,25);ct.fill();  
   ct.strokeStyle='rgba(120,255,150,.8)';ct.lineWidth=2.5;rrect(CX-100,H*.76,200,50,25);ct.stroke();  
   ct.fillStyle='#fff';ct.font=`bold ${Math.floor(W*.047)}px sans-serif`;ct.textAlign='center';  
-  
-  // 🔽 3. 開始按鈕文字
   ct.fillText('▶ Click to Start',CX,H*.76+34);  
-  
   const sv=localStorage.getItem('mm_save');  
-  if(sv){ct.fillStyle='rgba(150,255,150,.7)';ct.font=`${Math.floor(W*.028)}px sans-serif`;
-  
-  // 🔽 4. 讀取存檔提示
-  ct.fillText('✔ Save found — Auto-loading',CX,H*.88);}  
-  
+  if(sv){ct.fillStyle='rgba(150,255,150,.7)';ct.font=`${Math.floor(W*.028)}px sans-serif`;ct.fillText('✔ Save found — Auto-loading',CX,H*.88);}  
   ct.fillStyle='rgba(255,255,255,.3)';ct.font=`${Math.floor(W*.025)}px sans-serif`;  
-  
-  // 🔽 5. 版本號
   ct.fillText('v0.5',CX,H-.015*H);
 }
+  
   // Moon
   ct.save();ct.shadowColor='#aaccff';ct.shadowBlur=30;
   ct.fillStyle='#ddeeff';ct.beginPath();ct.arc(W*.78,H*.18,38,0,Math.PI*2);ct.fill();
