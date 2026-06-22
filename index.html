@@ -104,6 +104,24 @@ let killCount=0,playTime=0,tutorialTimer=0;
 let deathWave=1,deathKills=0,deathTime=0;
 let titleAnimT=0;
 
+/* ═══ WEB AUDIO ENGINE ═══════════════════════════════════ */
+const SFX=(()=>{
+  let ctx=null;
+  function ac(){if(!ctx){try{ctx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}return ctx;}
+  function play(fn){try{const c=ac();if(!c)return;if(c.state==='suspended')c.resume();fn(c);}catch(e){}}
+  function env(g,now,atk,sus,rel){g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(.32,now+atk);g.gain.setValueAtTime(.32,now+atk+sus);g.gain.linearRampToValueAtTime(0,now+atk+sus+rel);}
+  return{
+    swing(){play(c=>{const now=c.currentTime;const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(320,now);o.frequency.exponentialRampToValueAtTime(80,now+.12);env(g,now,.005,.04,.07);o.start(now);o.stop(now+.16);});},
+    hit(){play(c=>{const now=c.currentTime;const buf=c.createBuffer(1,Math.floor(c.sampleRate*.08),c.sampleRate);const d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);const src=c.createBufferSource();src.buffer=buf;const g=c.createGain();const flt=c.createBiquadFilter();flt.type='bandpass';flt.frequency.value=800;src.connect(flt);flt.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.22,now);g.gain.linearRampToValueAtTime(0,now+.08);src.start(now);});},
+    hurt(){play(c=>{const now=c.currentTime;const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type='square';o.frequency.setValueAtTime(180,now);o.frequency.exponentialRampToValueAtTime(60,now+.18);env(g,now,.01,.1,.1);o.start(now);o.stop(now+.22);});},
+    upgrade(){play(c=>{const now=c.currentTime;[440,554,659,880].forEach((f,i)=>{const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,now+i*.06);g.gain.linearRampToValueAtTime(.18,now+i*.06+.02);g.gain.linearRampToValueAtTime(0,now+i*.06+.15);o.start(now+i*.06);o.stop(now+i*.06+.18);});});},
+    coin(){play(c=>{const now=c.currentTime;const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.setValueAtTime(880,now);o.frequency.setValueAtTime(1320,now+.04);env(g,now,.005,.03,.06);o.start(now);o.stop(now+.1);});},
+    death(){play(c=>{const now=c.currentTime;[220,185,165,140].forEach((f,i)=>{const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sawtooth';o.frequency.setValueAtTime(f,now+i*.18);g.gain.setValueAtTime(.28,now+i*.18);g.gain.linearRampToValueAtTime(0,now+i*.18+.3);o.start(now+i*.18);o.stop(now+i*.18+.32);});});},
+    wave(){play(c=>{const now=c.currentTime;const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type='triangle';o.frequency.setValueAtTime(200,now);o.frequency.linearRampToValueAtTime(400,now+.2);env(g,now,.01,.12,.1);o.start(now);o.stop(now+.25);});},
+    start(){play(c=>{const now=c.currentTime;[330,440,550,660].forEach((f,i)=>{const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,now+i*.05);g.gain.linearRampToValueAtTime(.15,now+i*.05+.02);g.gain.linearRampToValueAtTime(0,now+i*.05+.12);o.start(now+i*.05);o.stop(now+i*.05+.15);});});}
+  };
+})();
+
 function wallR(){return HOUSES[hLv].wallR;}
 function wDmgMult(){
   let m=1;
@@ -164,6 +182,7 @@ function isNearBase(x,y,r){
   return false;
 }
 function spawnWave(w){
+  SFX.wave();
   const n=4+w*3;
   for(let i=0;i<n;i++){
     const a=Math.random()*Math.PI*2,d=520+Math.random()*900;
@@ -666,7 +685,7 @@ function tickAutoUpgrade(){
     if(hLv>=HOUSES.length-1) return false;
     const cost=HOUSES[hLv+1].cost;
     if(P.gold<cost){showMsg(`需要${cost}💰升級房屋`);return false;}
-    P.gold-=cost;hLv++;applyHouseBonus(hLv);saveGame();
+    P.gold-=cost;hLv++;applyHouseBonus(hLv);saveGame();SFX.upgrade();
     spawnP(HX,HY,'#ffdd44',28);ft(HX,HY-80,`🏠升級→${HOUSES[hLv].name}！`,'#ffff66');
     showMsg(`${HOUSES[hLv].name} | ${HOUSES[hLv].bonus}`);return true;
   });
@@ -735,7 +754,7 @@ function tickAutoUpgrade(){
       if(b.lv>=b.maxLv) return false;
       const cost=b.costs[b.lv];
       if(P.gold<cost){showMsg(`需要${cost}💰升級${b.name}`);return false;}
-      P.gold-=cost;b.lv++;saveGame();spawnP(b.wx,b.wy,'#44ffaa',22);
+      P.gold-=cost;b.lv++;saveGame();SFX.upgrade();spawnP(b.wx,b.wy,'#44ffaa',22);
       ft(b.wx,b.wy-50,`${b.name} Lv${b.lv}`,'#88ff88');
       showMsg(`${b.name} Lv${b.lv}：${b.bonuses[b.lv-1]}`);return true;
     });
@@ -763,6 +782,7 @@ function updateBlade(){
     if(b.hp<=0) continue;if(b.bladeCd>0){b.bladeCd--;continue;}
     if(Math.hypot(P.wx-b.x,P.wy-b.y)<R+b.sz){
       const d=atk+rng(8);b.hp-=d;b.flash=8;b.bladeCd=18+rng(6);
+      SFX.swing();
       spawnP(b.x,b.y,'#ff4444',4);ft(b.x,b.y,`-${d}`,'#ff6655');
       if(b.hp<=0)killBear(b);
     }
@@ -777,6 +797,7 @@ function updateBlade(){
 }
 function killBear(b){
   killCount++;
+  SFX.hit();
   spawnP(b.x,b.y,'#ffaa44',b.boss?32:12);
   const n=b.boss?8:1;
   for(let i=0;i<n;i++) drops.push({x:b.x+(Math.random()-.5)*40,y:b.y+(Math.random()-.5)*40,type:'meat',age:0,taken:false});
@@ -844,16 +865,16 @@ function updateCustomer(c){
     let bought=false;
     if(c.type==='pizza'&&tablePizza>0){
       const n=Math.min(tablePizza,1+rng(2)),price=Math.floor(n*(BLDGS.pizza.lv>=4?150:BLDGS.pizza.lv>=3?90:42+rng(14))*mult);
-      tablePizza-=n;P.gold+=price;P.coinAnim=30;spawnP(tx,ty,'#ffdd44',10);ft(tx,ty-22,`+${price}💰🍕`,'#ffdd44');c.state='leave';bought=true;
+      tablePizza-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',10);ft(tx,ty-22,`+${price}💰🍕`,'#ffdd44');c.state='leave';bought=true;
     } else if(c.type==='grain'&&tableGrain>0){
       const n=Math.min(tableGrain,2+rng(3)),price=Math.floor(n*(22+rng(10))*mult);
-      tableGrain-=n;P.gold+=price;P.coinAnim=30;spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}💰🌾`,'#eebb44');c.state='leave';bought=true;
+      tableGrain-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}💰🌾`,'#eebb44');c.state='leave';bought=true;
     } else if(c.type==='meat'&&tableMeat>0){
       const n=Math.min(tableMeat,1+rng(2)),price=Math.floor(n*(20+rng(8))*mult);
-      tableMeat-=n;P.gold+=price;P.coinAnim=30;spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}💰🥩`,'#ffdd44');c.state='leave';bought=true;
+      tableMeat-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}💰🥩`,'#ffdd44');c.state='leave';bought=true;
     } else if(c.type==='wood'&&tableWood>0){
       const n=Math.min(tableWood,2+rng(3)),price=Math.floor(n*(12+rng(6))*mult);
-      tableWood-=n;P.gold+=price;P.coinAnim=30;spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}💰🪵`,'#ffdd44');c.state='leave';bought=true;
+      tableWood-=n;P.gold+=price;P.coinAnim=30;SFX.coin();spawnP(tx,ty,'#ffdd44',8);ft(tx,ty-22,`+${price}💰🪵`,'#ffdd44');c.state='leave';bought=true;
     }
     if(!bought&&c.wt<=0) c.state='leave';
   } else {
@@ -911,9 +932,10 @@ function update(){
           sc.hp=Math.max(0,sc.hp-absorbed);sc.flash=10;sc.inv=30;
           spawnP(sc.x,sc.y,'#4488ff',6);ft(sc.x,sc.y-20,`🛡-${absorbed}`,'#88bbff');
         }
-        if(dmgToPlayer>0){P.hp=Math.max(0,P.hp-dmgToPlayer);P.inv=35;ft(P.wx,P.wy-22,`-${dmgToPlayer}`,'#ff4444');spawnP(P.wx,P.wy,'#ff4444',4);}
+        if(dmgToPlayer>0){P.hp=Math.max(0,P.hp-dmgToPlayer);P.inv=35;SFX.hurt();ft(P.wx,P.wy-22,`-${dmgToPlayer}`,'#ff4444');spawnP(P.wx,P.wy,'#ff4444',4);}
         b.atkCd=b.boss?120:30;
         if(P.hp<=0){
+          SFX.death();
           deathWave=wave;deathKills=killCount;deathTime=Math.floor(playTime/60);
           gameState='dead';saveGame();
         }
@@ -924,7 +946,7 @@ function update(){
       if(b.boss||Math.hypot(nb_x-HX,nb_y-HY)>=wr){b.x=nb_x;b.y=nb_y;}
     }
   }
-  for(const d of drops){d.age++;if(!d.taken&&Math.hypot(P.wx-d.x,P.wy-d.y)<28){if(d.type==='meat'){P.meat++;d.taken=true;ft(d.x,d.y,'+🥩','#ffaa66');}else if(d.type==='wood'){P.wood++;d.taken=true;ft(d.x,d.y,'+木','#ddaa66');}}}
+  for(const d of drops){d.age++;if(!d.taken&&Math.hypot(P.wx-d.x,P.wy-d.y)<28){if(d.type==='meat'){P.meat++;d.taken=true;SFX.coin();ft(d.x,d.y,'+🥩','#ffaa66');}else if(d.type==='wood'){P.wood++;d.taken=true;SFX.coin();ft(d.x,d.y,'+木','#ddaa66');}}}
   drops=drops.filter(d=>!d.taken&&d.age<800);
   custTimer--;
   const mkt=BLDGS.market.lv?[1.4,1.8][BLDGS.market.lv-1]:1;
@@ -1963,7 +1985,7 @@ function drawDead(){
   ct.fillStyle='rgba(0,0,0,.82)';ct.fillRect(0,0,W,H);
   ct.shadowColor='#ff2200';ct.shadowBlur=25;
   ct.fillStyle='#ff5544';ct.font=`bold ${Math.floor(W*.1)}px sans-serif`;ct.textAlign='center';
-  ct.fillText('💀 倒下了',CX,H*.25);
+  ct.fillText('\u{1F480} 倒下了',CX,H*.25);
   ct.shadowBlur=0;
   ct.fillStyle='rgba(255,255,255,.9)';ct.font=`${Math.floor(W*.042)}px sans-serif`;
   const mins=Math.floor(deathTime/60),secs=deathTime%60;
@@ -1977,7 +1999,7 @@ function drawDead(){
   rrect(CX-100,H*.64,200,52,26);ct.fill();
   ct.strokeStyle='rgba(140,180,255,.8)';ct.lineWidth=2.5;rrect(CX-100,H*.64,200,52,26);ct.stroke();
   ct.fillStyle='#fff';ct.font=`bold ${Math.floor(W*.047)}px sans-serif`;ct.textAlign='center';
-  ct.fillText('↺  再玩一次',CX,H*.64+36);
+  ct.fillText('\u21BA  再玩一次',CX,H*.64+36);
 }
 
 /* ═══ TUTORIAL HINTS ════════════════════════════════════ */
@@ -1990,13 +2012,13 @@ function drawTutorial(){
   ct.fillStyle='rgba(0,0,0,.55)';ct.font=`bold ${Math.floor(W*.035)}px sans-serif`;ct.textAlign='center';
   if(t<20*60){
     rrect(CX-130,H*.86-22,260,38,8);ct.fill();
-    ct.fillStyle='#ffffaa';ct.fillText('👆 拖曳左側螢幕移動 / WASD',CX,H*.86+8);
+    ct.fillStyle='#ffffaa';ct.fillText('\u261E 拖曳左側螢幕移動 / WASD',CX,H*.86+8);
   } else if(t<40*60){
     rrect(CX-120,H*.86-22,240,38,8);ct.fill();
-    ct.fillStyle='#ffddaa';ct.fillText('⚔️ 靠近怪物自動攻擊！',CX,H*.86+8);
+    ct.fillStyle='#ffddaa';ct.fillText('\u2694\uFE0F 靠近怪物自動攻擊！',CX,H*.86+8);
   } else {
     rrect(CX-130,H*.86-22,260,38,8);ct.fill();
-    ct.fillStyle='#aaffaa';ct.fillText('🏠 靠近建築自動升級！',CX,H*.86+8);
+    ct.fillStyle='#aaffaa';ct.fillText('\u{1F3E0} 靠近建築自動升級！',CX,H*.86+8);
   }
   ct.globalAlpha=1;
 }
@@ -2018,6 +2040,7 @@ function loop(ts){
 /* ═══ START/CLICK HANDLERS ═══════════════════════════════ */
 function handleStart(ex,ey){
   if(gameState==='title'){
+    SFX.start();
     gameState='playing';
     bears=[];spawnWave(1);
     loadSave();
@@ -2040,7 +2063,7 @@ cv.addEventListener('touchend',e=>{
   }
 },{passive:false});
 
-// Init trees at startup (before title screen, no enemies yet)
+// Init trees at startup
 (function initTrees(){
   for(let i=0;i<520;i++){
     let x,y,tries=0;
