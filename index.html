@@ -1900,18 +1900,21 @@ function drawHUD(){
   if(joy.on){const jx=joy.bx,jy=joy.by;ct.fillStyle='rgba(255,255,255,.08)';ct.beginPath();ct.arc(jx,jy,60,0,Math.PI*2);ct.fill();ct.strokeStyle='rgba(255,255,255,.25)';ct.lineWidth=2.5;ct.beginPath();ct.arc(jx,jy,60,0,Math.PI*2);ct.stroke();ct.fillStyle='rgba(255,255,255,.32)';ct.beginPath();ct.arc(jx+Math.min(joy.dx,50),jy+Math.min(joy.dy,50),26,0,Math.PI*2);ct.fill();}
   if(msgT>0)msgT--;
 }
-
-/* âââ TITLE SCREEN âââââââââââââââââââââââââââââââââââââââ */
-function drawTitle(){
-  titleAnimT+=0.02;
-  const grd=ct.createRadialGradient(CX,CY*.6,0,CX,CY,H*.9);
-  grd.addColorStop(0,'#0e1a3a');grd.addColorStop(1,'#020510');
-  ct.fillStyle=grd;ct.fillRect(0,0,W,H);
-  for(let i=0;i<80;i++){
-    const sx=((i*137.5+23)%W),sy=((i*97.3+11)%(H*.55));
-    ct.fillStyle=`rgba(255,255,255,${.2+Math.sin(titleAnimT*1.5+i)*.25})`;
-    ct.beginPath();ct.arc(sx,sy,(i%3===0?1.5:.8),0,Math.PI*2);ct.fill();
-  }
+/* ═══ TITLE SCREEN ═════════════════════════════════ */
+function drawTitle(){  
+  // ... (前面是一堆畫背景、月亮跟魔女的程式碼) ...
+  // 這裡畫遊戲大標題
+  ct.fillText('Magic Merchant',CX,H*.22);
+  // 這裡畫遊戲副標題
+  ct.fillText('Survival Tycoon',CX,H*.3);
+  // ... (中間省略) ...
+  // 這裡畫開始按鈕的文字
+  ct.fillText('▶ Click to Start',CX,H*.76+34);
+  // 如果有找到存檔，會顯示這行提示
+  if(sv){ct.fillStyle='rgba(150,255,150,.7)';ct.font=`${Math.floor(W*.028)}px sans-serif`;ct.fillText('✔ Save found — Auto-loading',CX,H*.88);}
+  // 右下角的版本號
+  ct.fillText('v0.5',CX,H-.015*H);
+}
   // Moon
   ct.save();ct.shadowColor='#aaccff';ct.shadowBlur=30;
   ct.fillStyle='#ddeeff';ct.beginPath();ct.arc(W*.78,H*.18,38,0,Math.PI*2);ct.fill();
