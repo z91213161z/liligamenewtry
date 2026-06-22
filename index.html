@@ -99,6 +99,10 @@ let joy={on:false,id:-1,bx:0,by:0,dx:0,dy:0};
 let msg='',msgT=0;
 let frameN=0;
 let dtScale=1,lastTime=0; // delta-time for frame-rate independent movement
+let gameState='title'; // 'title' | 'playing' | 'dead'
+let killCount=0,playTime=0,tutorialTimer=0;
+let deathWave=1,deathKills=0,deathTime=0;
+let titleAnimT=0;
 
 function wallR(){return HOUSES[hLv].wallR;}
 function wDmgMult(){
@@ -124,6 +128,36 @@ function init(){
   }
   spawnWave(1);
 }
+/* ═══ SAVE / LOAD ════════════════════════════════════════ */
+function saveGame(){
+  try{localStorage.setItem('mm_save',JSON.stringify({
+    hLv,wLv:P.wLv,gold:P.gold,
+    bldgs:Object.fromEntries(Object.entries(BLDGS).map(([k,b])=>[k,b.lv]))
+  }));}catch(e){}
+}
+function loadSave(){
+  try{
+    const s=JSON.parse(localStorage.getItem('mm_save'));
+    if(!s)return;
+    P.wLv=Math.max(1,Math.min(s.wLv||1,WEAPS.length));
+    P.gold=s.gold||0;
+    const tgt=s.hLv||0;
+    for(let i=1;i<=tgt;i++)applyHouseBonus(i);
+    hLv=tgt;
+    for(const[k,lv]of Object.entries(s.bldgs||{}))if(BLDGS[k])BLDGS[k].lv=lv||0;
+  }catch(e){}
+}
+function restartGame(){
+  // Reset combat state, keep building progress
+  bears=[];drops=[];parts=[];ftexts=[];customers=[];companions=[];workers=[];
+  P.hp=P.mxHp;P.wx=HX;P.wy=HY+210;P.wood=0;P.meat=0;P.grain=0;P.pizza=0;P.inv=0;
+  wave=1;wTimer=0;bossTimer=0;custTimer=4*60;
+  killCount=0;playTime=0;tutorialTimer=0;totalDeath=0;bladeAngle=0;
+  camX=HX-CX;camY=HY-CY;
+  spawnWave(1);
+  gameState='playing';
+}
+
 function isNearBase(x,y,r){
   if(Math.hypot(x-HX,y-HY)<r) return true;
   for(const b of Object.values(BLDGS)) if(Math.hypot(x-b.wx,y-b.wy)<r*.7) return true;
@@ -632,7 +666,7 @@ function tickAutoUpgrade(){
     if(hLv>=HOUSES.length-1) return false;
     const cost=HOUSES[hLv+1].cost;
     if(P.gold<cost){showMsg(`需要${cost}💰升級房屋`);return false;}
-    P.gold-=cost;hLv++;applyHouseBonus(hLv);
+    P.gold-=cost;hLv++;applyHouseBonus(hLv);saveGame();
     spawnP(HX,HY,'#ffdd44',28);ft(HX,HY-80,`🏠升級→${HOUSES[hLv].name}！`,'#ffff66');
     showMsg(`${HOUSES[hLv].name} | ${HOUSES[hLv].bonus}`);return true;
   });
@@ -701,7 +735,7 @@ function tickAutoUpgrade(){
       if(b.lv>=b.maxLv) return false;
       const cost=b.costs[b.lv];
       if(P.gold<cost){showMsg(`需要${cost}💰升級${b.name}`);return false;}
-      P.gold-=cost;b.lv++;spawnP(b.wx,b.wy,'#44ffaa',22);
+      P.gold-=cost;b.lv++;saveGame();spawnP(b.wx,b.wy,'#44ffaa',22);
       ft(b.wx,b.wy-50,`${b.name} Lv${b.lv}`,'#88ff88');
       showMsg(`${b.name} Lv${b.lv}：${b.bonuses[b.lv-1]}`);return true;
     });
@@ -742,6 +776,7 @@ function updateBlade(){
   }
 }
 function killBear(b){
+  killCount++;
   spawnP(b.x,b.y,'#ffaa44',b.boss?32:12);
   const n=b.boss?8:1;
   for(let i=0;i<n;i++) drops.push({x:b.x+(Math.random()-.5)*40,y:b.y+(Math.random()-.5)*40,type:'meat',age:0,taken:false});
@@ -879,9 +914,8 @@ function update(){
         if(dmgToPlayer>0){P.hp=Math.max(0,P.hp-dmgToPlayer);P.inv=35;ft(P.wx,P.wy-22,`-${dmgToPlayer}`,'#ff4444');spawnP(P.wx,P.wy,'#ff4444',4);}
         b.atkCd=b.boss?120:30;
         if(P.hp<=0){
-          P.hp=Math.floor(P.mxHp*.5);P.wx=HX;P.wy=HY+120;camX=HX-CX;camY=HY-CY;totalDeath++;
-          if(P.wood>0){drops.push({x:P.wx+(Math.random()-.5)*80,y:P.wy+(Math.random()-.5)*80,type:'wood',age:0,taken:false});P.wood=0;}
-          showMsg(`倒下了！(第${totalDeath}次) 繼續擴張！`);
+          deathWave=wave;deathKills=killCount;deathTime=Math.floor(playTime/60);
+          gameState='dead';saveGame();
         }
       }
     } else {
@@ -1855,12 +1889,167 @@ function drawHUD(){
   if(msgT>0)msgT--;
 }
 
+/* ═══ TITLE SCREEN ═══════════════════════════════════════ */
+function drawTitle(){
+  titleAnimT+=0.02;
+  const grd=ct.createRadialGradient(CX,CY*.6,0,CX,CY,H*.9);
+  grd.addColorStop(0,'#0e1a3a');grd.addColorStop(1,'#020510');
+  ct.fillStyle=grd;ct.fillRect(0,0,W,H);
+  for(let i=0;i<80;i++){
+    const sx=((i*137.5+23)%W),sy=((i*97.3+11)%(H*.55));
+    ct.fillStyle=`rgba(255,255,255,${.2+Math.sin(titleAnimT*1.5+i)*.25})`;
+    ct.beginPath();ct.arc(sx,sy,(i%3===0?1.5:.8),0,Math.PI*2);ct.fill();
+  }
+  // Moon
+  ct.save();ct.shadowColor='#aaccff';ct.shadowBlur=30;
+  ct.fillStyle='#ddeeff';ct.beginPath();ct.arc(W*.78,H*.18,38,0,Math.PI*2);ct.fill();
+  ct.fillStyle='#0e1a3a';ct.beginPath();ct.arc(W*.78+14,H*.18-8,32,0,Math.PI*2);ct.fill();
+  ct.restore();
+  // Title text
+  ct.save();
+  ct.shadowColor='#4488ff';ct.shadowBlur=30;
+  ct.fillStyle='#ffffff';ct.font=`bold ${Math.floor(W*.13)}px sans-serif`;ct.textAlign='center';
+  ct.fillText('魔法商人',CX,H*.22);
+  ct.shadowBlur=0;
+  ct.fillStyle='rgba(180,210,255,.85)';ct.font=`${Math.floor(W*.038)}px sans-serif`;
+  ct.fillText('Magic Merchant — 生存經營',CX,H*.3);
+  ct.restore();
+  // Animated witch
+  const wx=CX,wy=H*.58+Math.sin(titleAnimT*2.2)*7;
+  ct.save();ct.translate(wx,wy);
+  for(let s of[-1,1]){
+    ct.fillStyle=`rgba(100,160,255,${.18+Math.sin(titleAnimT*4)*0.07})`;
+    ct.beginPath();ct.ellipse(s*28,-10,22,14,s*0.4,0,Math.PI*2);ct.fill();
+    ct.strokeStyle=`rgba(160,200,255,.35)`;ct.lineWidth=1;ct.beginPath();ct.ellipse(s*28,-10,22,14,s*0.4,0,Math.PI*2);ct.stroke();
+  }
+  ct.fillStyle='#3344aa';ct.fillRect(-11,-4,22,28);
+  ct.fillStyle='#2233aa';ct.fillRect(-9,-2,8,26);
+  ct.fillStyle='#111';ct.fillRect(-8,22,7,18);ct.fillRect(1,22,7,18);
+  ct.fillStyle='#2244cc';ct.beginPath();ct.ellipse(-5,40,6,4,0,0,Math.PI*2);ct.fill();
+  ct.beginPath();ct.ellipse(5,40,6,4,0,0,Math.PI*2);ct.fill();
+  ct.fillStyle='#4466bb';ct.beginPath();ct.ellipse(0,-18,14,16,0,0,Math.PI*2);ct.fill();
+  ct.fillStyle='#060618';ct.beginPath();ct.ellipse(0,-34,22,6,0,0,Math.PI*2);ct.fill();
+  ct.fillStyle='#080820';ct.beginPath();ct.moveTo(-16,-34);ct.lineTo(-4,-70);ct.lineTo(4,-70);ct.lineTo(16,-34);ct.closePath();ct.fill();
+  ct.fillStyle='#2244bb';ct.fillRect(-16,-40,32,6);
+  for(let i=0;i<5;i++){const fa=(i/5)*Math.PI*2;ct.fillStyle=['#ff88bb','#ff66aa','#ffaacc','#ff99bb','#ee77aa'][i];ct.beginPath();ct.ellipse(-8+Math.cos(fa)*4,-46+Math.sin(fa)*3.5,2.5,2,fa,0,Math.PI*2);ct.fill();}
+  ct.fillStyle='#ffcc44';ct.beginPath();ct.arc(-8,-46,2.2,0,Math.PI*2);ct.fill();
+  ct.fillStyle='#f2eeff';ct.beginPath();ct.arc(0,-20,10,0,Math.PI*2);ct.fill();
+  ct.fillStyle='#5577cc';ct.beginPath();ct.arc(0,-20,10,Math.PI*.6,Math.PI*1.9);ct.fill();
+  ct.fillStyle='#ccaa00';ct.beginPath();ct.ellipse(-3,-20,2.2,2.8,0,0,Math.PI*2);ct.fill();
+  ct.fillStyle='#ccaa00';ct.beginPath();ct.ellipse(3,-20,2.2,2.8,0,0,Math.PI*2);ct.fill();
+  ct.fillStyle='#fff';ct.beginPath();ct.arc(-2,-21,1,0,Math.PI*2);ct.fill();
+  ct.beginPath();ct.arc(4,-21,1,0,Math.PI*2);ct.fill();
+  ct.strokeStyle='#1a1030';ct.lineWidth=3;ct.beginPath();ct.moveTo(14,-4);ct.lineTo(14,-48);ct.stroke();
+  const orbPulse=.7+Math.sin(titleAnimT*5)*.3;
+  ct.fillStyle=`rgba(80,130,255,${orbPulse})`;ct.beginPath();ct.arc(14,-52,8,0,Math.PI*2);ct.fill();
+  ct.fillStyle=`rgba(200,220,255,.8)`;ct.beginPath();ct.arc(14,-52,4,0,Math.PI*2);ct.fill();
+  for(let i=0;i<5;i++){const ma=(titleAnimT*2+i*1.257)%(Math.PI*2);ct.fillStyle=`rgba(100,180,255,${.5+Math.sin(titleAnimT*3+i)*.3})`;ct.beginPath();ct.arc(Math.cos(ma)*26+14,Math.sin(ma)*16-52,2,0,Math.PI*2);ct.fill();}
+  ct.restore();
+  // Start button
+  const pulse=.75+Math.sin(titleAnimT*3)*.25;
+  ct.fillStyle=`rgba(40,180,90,${pulse})`;
+  rrect(CX-100,H*.76,200,50,25);ct.fill();
+  ct.strokeStyle='rgba(120,255,150,.8)';ct.lineWidth=2.5;rrect(CX-100,H*.76,200,50,25);ct.stroke();
+  ct.fillStyle='#fff';ct.font=`bold ${Math.floor(W*.047)}px sans-serif`;ct.textAlign='center';
+  ct.fillText('▶  點擊開始',CX,H*.76+34);
+  const sv=localStorage.getItem('mm_save');
+  if(sv){ct.fillStyle='rgba(150,255,150,.7)';ct.font=`${Math.floor(W*.028)}px sans-serif`;ct.fillText('✓ 找到存檔 — 將自動讀取',CX,H*.88);}
+  ct.fillStyle='rgba(255,255,255,.3)';ct.font=`${Math.floor(W*.025)}px sans-serif`;
+  ct.fillText('v0.5',CX,H-.015*H);
+}
+
+/* ═══ DEATH / GAME OVER SCREEN ══════════════════════════ */
+function drawDead(){
+  ct.fillStyle='rgba(0,0,0,.82)';ct.fillRect(0,0,W,H);
+  ct.shadowColor='#ff2200';ct.shadowBlur=25;
+  ct.fillStyle='#ff5544';ct.font=`bold ${Math.floor(W*.1)}px sans-serif`;ct.textAlign='center';
+  ct.fillText('💀 倒下了',CX,H*.25);
+  ct.shadowBlur=0;
+  ct.fillStyle='rgba(255,255,255,.9)';ct.font=`${Math.floor(W*.042)}px sans-serif`;
+  const mins=Math.floor(deathTime/60),secs=deathTime%60;
+  ct.fillText(`第 ${deathWave} 波  |  擊殺 ${deathKills} 隻`,CX,H*.38);
+  ct.fillText(`遊玩時間 ${mins}分${secs<10?'0':''}${secs}秒`,CX,H*.46);
+  ct.strokeStyle='rgba(255,80,80,.4)';ct.lineWidth=1;ct.beginPath();ct.moveTo(CX-120,H*.52);ct.lineTo(CX+120,H*.52);ct.stroke();
+  ct.fillStyle='rgba(255,200,100,.75)';ct.font=`${Math.floor(W*.032)}px sans-serif`;
+  ct.fillText('存檔已保留 — 建築不會消失',CX,H*.57);
+  const pulse=.72+Math.sin(Date.now()*.003)*.28;
+  ct.fillStyle=`rgba(50,100,220,${pulse})`;
+  rrect(CX-100,H*.64,200,52,26);ct.fill();
+  ct.strokeStyle='rgba(140,180,255,.8)';ct.lineWidth=2.5;rrect(CX-100,H*.64,200,52,26);ct.stroke();
+  ct.fillStyle='#fff';ct.font=`bold ${Math.floor(W*.047)}px sans-serif`;ct.textAlign='center';
+  ct.fillText('↺  再玩一次',CX,H*.64+36);
+}
+
+/* ═══ TUTORIAL HINTS ════════════════════════════════════ */
+function drawTutorial(){
+  if(tutorialTimer>60*60)return;
+  tutorialTimer++;
+  const t=tutorialTimer;
+  const fadeIn=Math.min(1,t/40),fadeOut=Math.min(1,(60*60-t)/50);
+  ct.globalAlpha=Math.min(fadeIn,fadeOut)*.9;
+  ct.fillStyle='rgba(0,0,0,.55)';ct.font=`bold ${Math.floor(W*.035)}px sans-serif`;ct.textAlign='center';
+  if(t<20*60){
+    rrect(CX-130,H*.86-22,260,38,8);ct.fill();
+    ct.fillStyle='#ffffaa';ct.fillText('👆 拖曳左側螢幕移動 / WASD',CX,H*.86+8);
+  } else if(t<40*60){
+    rrect(CX-120,H*.86-22,240,38,8);ct.fill();
+    ct.fillStyle='#ffddaa';ct.fillText('⚔️ 靠近怪物自動攻擊！',CX,H*.86+8);
+  } else {
+    rrect(CX-130,H*.86-22,260,38,8);ct.fill();
+    ct.fillStyle='#aaffaa';ct.fillText('🏠 靠近建築自動升級！',CX,H*.86+8);
+  }
+  ct.globalAlpha=1;
+}
+
+/* ═══ GAME LOOP ══════════════════════════════════════════ */
 function loop(ts){
   if(lastTime>0){const dt=ts-lastTime;dtScale=Math.min(Math.max(dt/16.67,0.5),5);}
   lastTime=ts;
-  update();draw();requestAnimationFrame(loop);
+  if(gameState==='title'){
+    ct.clearRect(0,0,W,H);drawTitle();
+  } else if(gameState==='dead'){
+    draw();drawDead();
+  } else {
+    playTime++;update();draw();drawTutorial();
+  }
+  requestAnimationFrame(loop);
 }
-init();requestAnimationFrame(loop);
+
+/* ═══ START/CLICK HANDLERS ═══════════════════════════════ */
+function handleStart(ex,ey){
+  if(gameState==='title'){
+    gameState='playing';
+    bears=[];spawnWave(1);
+    loadSave();
+    return;
+  }
+  if(gameState==='dead'){
+    const bx=CX-100,by=H*.64,bw=200,bh=52;
+    if(ex>=bx&&ex<=bx+bw&&ey>=by&&ey<=by+bh)restartGame();
+  }
+}
+cv.addEventListener('click',e=>{
+  const r=cv.getBoundingClientRect();
+  handleStart(e.clientX-r.left,e.clientY-r.top);
+});
+cv.addEventListener('touchend',e=>{
+  e.preventDefault();
+  if(gameState==='title'||gameState==='dead'){
+    const r=cv.getBoundingClientRect(),t=e.changedTouches[0];
+    handleStart(t.clientX-r.left,t.clientY-r.top);
+  }
+},{passive:false});
+
+// Init trees at startup (before title screen, no enemies yet)
+(function initTrees(){
+  for(let i=0;i<520;i++){
+    let x,y,tries=0;
+    do{x=80+Math.random()*(WS-160);y=80+Math.random()*(WS-160);tries++;}
+    while(tries<300&&isNearBase(x,y,110));
+    trees.push({x,y,r:14+Math.random()*18,cd:0,type:Math.random()<.15?'pine':'oak'});
+  }
+})();
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
