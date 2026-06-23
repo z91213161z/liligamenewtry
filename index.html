@@ -32,7 +32,7 @@ const ct = cv.getContext('2d');
 const W = cv.width = Math.min(window.innerWidth, 520);
 const H = cv.height = Math.min(window.innerHeight, 860);
 const CX = W / 2;
-const WORLD_W = W * 3.5, WORLD_H = H * 3.5;
+const WORLD_W = 3640, WORLD_H = 4724;
 // BIOMES
 function getBiome(wx,wy){const nx=wx/WORLD_W,ny=wy/WORLD_H;if(nx>0.62&&ny>0.62)return 3;if(nx>0.62)return 1;if(ny>0.62)return 2;return 0;}
 const BIOME_STYLES=[{g:'#243c14',g2:'#1a3010',gr:'rgba(50,90,30,0.18)'},{g:'#c4903a',g2:'#a07028',gr:'rgba(200,140,40,0.18)'},{g:'#c8d8ec',g2:'#a8c0dc',gr:'rgba(150,190,220,0.22)'},{g:'#12101e',g2:'#0a0814',gr:'rgba(70,30,100,0.28)'}];
@@ -3187,16 +3187,16 @@ function drawMiniMap() {
   ct.restore();
 }
 function initStructures(){const R=Math.random;
-  for(let i=0;i<35;i++)wStructs.push({t:'rock',x:R()*WORLD_W*0.58,y:R()*WORLD_H*0.58,r:7+R()*14,c1:'#556644',c2:'#778866'});
-  for(let i=0;i<10;i++)wStructs.push({t:'ruin',x:R()*WORLD_W*0.55,y:R()*WORLD_H*0.55,w:14+R()*28,h:18+R()*22});
-  for(let i=0;i<14;i++)wStructs.push({t:'pyramid',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:R()*WORLD_H*0.58,sz:16+R()*26});
-  for(let i=0;i<28;i++)wStructs.push({t:'cactus',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:R()*WORLD_H*0.58,h:12+R()*20});
-  for(let i=0;i<18;i++)wStructs.push({t:'dune',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:R()*WORLD_H*0.58,rx:22+R()*32,ry:7+R()*10});
-  for(let i=0;i<26;i++)wStructs.push({t:'ice',x:R()*WORLD_W*0.58,y:WORLD_H*0.63+R()*WORLD_H*0.35,h:16+R()*30,rot:R()*0.4-0.2});
-  for(let i=0;i<18;i++)wStructs.push({t:'snow',x:R()*WORLD_W*0.58,y:WORLD_H*0.63+R()*WORLD_H*0.35,rx:16+R()*26,ry:6+R()*9});
-  for(let i=0;i<30;i++)wStructs.push({t:'pillar',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:WORLD_H*0.63+R()*WORLD_H*0.35,r:5+R()*7});
-  for(let i=0;i<16;i++)wStructs.push({t:'lava',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:WORLD_H*0.63+R()*WORLD_H*0.35,len:22+R()*50,a:R()*Math.PI});
-  for(let i=0;i<12;i++)wStructs.push({t:'bone',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:WORLD_H*0.63+R()*WORLD_H*0.35,a:R()*Math.PI});
+  for(let i=0;i<120;i++)wStructs.push({t:'rock',x:R()*WORLD_W*0.58,y:R()*WORLD_H*0.58,r:7+R()*14,c1:'#556644',c2:'#778866'});
+  for(let i=0;i<35;i++)wStructs.push({t:'ruin',x:R()*WORLD_W*0.55,y:R()*WORLD_H*0.55,w:14+R()*28,h:18+R()*22});
+  for(let i=0;i<50;i++)wStructs.push({t:'pyramid',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:R()*WORLD_H*0.58,sz:16+R()*26});
+  for(let i=0;i<100;i++)wStructs.push({t:'cactus',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:R()*WORLD_H*0.58,h:12+R()*20});
+  for(let i=0;i<65;i++)wStructs.push({t:'dune',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:R()*WORLD_H*0.58,rx:22+R()*32,ry:7+R()*10});
+  for(let i=0;i<90;i++)wStructs.push({t:'ice',x:R()*WORLD_W*0.58,y:WORLD_H*0.63+R()*WORLD_H*0.35,h:16+R()*30,rot:R()*0.4-0.2});
+  for(let i=0;i<65;i++)wStructs.push({t:'snow',x:R()*WORLD_W*0.58,y:WORLD_H*0.63+R()*WORLD_H*0.35,rx:16+R()*26,ry:6+R()*9});
+  for(let i=0;i<110;i++)wStructs.push({t:'pillar',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:WORLD_H*0.63+R()*WORLD_H*0.35,r:5+R()*7});
+  for(let i=0;i<55;i++)wStructs.push({t:'lava',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:WORLD_H*0.63+R()*WORLD_H*0.35,len:22+R()*50,a:R()*Math.PI});
+  for(let i=0;i<45;i++)wStructs.push({t:'bone',x:WORLD_W*0.63+R()*WORLD_W*0.35,y:WORLD_H*0.63+R()*WORLD_H*0.35,a:R()*Math.PI});
 }
 initStructures();
 
