@@ -6460,7 +6460,7 @@ function drawMiniMap() {
   ct.strokeStyle='rgba(255,255,255,0.4)';ct.lineWidth=0.5;
   ct.strokeRect(vx,vy,W*sx,H*sy);
   ct.beginPath();ct.fillStyle='#00eeff';
-  ct.arc(mx+pad+player.x*sx, my+pad+player.y*sy, 2.5, 0, Math.PI*2);ct.fill();
+  ct.arc(mx+pad+p.x*sx, my+pad+p.y*sy, 2.5, 0, Math.PI*2);ct.fill();
   if(typeof base!=='undefined'){
     ct.beginPath();ct.fillStyle='#ffcc00';
     ct.arc(mx+pad+base.x*sx, my+pad+base.y*sy, 3, 0, Math.PI*2);ct.fill();
