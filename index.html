@@ -3144,6 +3144,18 @@ function drawTitle() {
   if (sv) { ct.fillStyle = 'rgba(150,255,150,.7)'; ct.font = `${Math.floor(W * .028)}px sans-serif`; ct.fillText('✔ Save found — Auto-loading', CX, H * .88); }
   ct.fillStyle = 'rgba(255,255,255,.3)'; ct.font = `${Math.floor(W * .025)}px sans-serif`;
   ct.fillText('v0.5', CX, H - .015 * H);
+  // Reset save button (only shown if save exists)
+  try { if (localStorage.getItem('mm_save')) {
+    ct.globalAlpha = 1;
+    ct.fillStyle = 'rgba(200,60,60,.3)';
+    rrect(CX - 65, H * .91, 130, 30, 15); ct.fill();
+    ct.strokeStyle = 'rgba(255,100,100,.6)'; ct.lineWidth = 1.5;
+    rrect(CX - 65, H * .91, 130, 30, 15); ct.stroke();
+    ct.fillStyle = 'rgba(255,255,255,.8)';
+    ct.font = `${Math.floor(W * .02)}px sans-serif`;
+    ct.textAlign = 'center';
+    ct.fillText('Reset Save', CX, H * .91 + 21);
+  }} catch(e) {}
 }
 
 /* ═══ DEATH / GAME OVER SCREEN ═══ */
@@ -3209,6 +3221,13 @@ function loop(ts) {
 /* ═══ START/CLICK HANDLERS ═══ */
 function handleStart(ex, ey) {
   if (gameState === 'title') {
+    // Check reset save button click
+    try { if (localStorage.getItem('mm_save')) {
+      if (ex >= CX-65 && ex <= CX+65 && ey >= H*.91 && ey <= H*.91+30) {
+        localStorage.removeItem('mm_save');
+        return;
+      }
+    }} catch(e) {}
     SFX.start();
     gameState = 'playing';
     bears = []; spawnWave(1);
